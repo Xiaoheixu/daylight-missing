@@ -1,0 +1,15 @@
+{
+  "name": "daylight-missing",
+  "version": "1.0.0",
+  "description": "白昼失踪 - 网页解密游戏",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "body-parser": "^1.20.2"
+  }
+}

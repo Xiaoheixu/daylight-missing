@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>白昼失踪</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 启动界面 -->
+<div id="boot-screen">
+  <div class="boot-text" id="boot-text"></div>
+</div>
+
+<!-- 前言介绍页 -->
+<div id="prologue-screen">
+  <div class="prologue-title">白 昼 失 踪</div>
+  <div class="prologue-text" id="prologue-text"></div>
+  <button class="prologue-start-btn" id="prologue-start-btn" onclick="startGame()">开 始 调 查</button>
+  <div class="prologue-hint" id="prologue-hint"></div>
+</div>
+
+<!-- 锁屏/多用户登录界面 -->
+<div id="lock-screen">
+  <div class="lock-current-user">
+    <span class="dot"></span><span id="lock-current-tip">当前：我（已登录）</span>
+  </div>
+  <div class="lock-time" id="lock-time">--:--</div>
+  <div class="lock-date" id="lock-date">----年--月--日</div>
+  <div class="lock-title">选 择 用 户 登 录</div>
+  <div class="lock-user-list" id="lock-user-list"></div>
+  <div class="lock-input-row">
+    <input class="lock-password-input" id="lock-password" type="password" placeholder="输入密码（我 不需要密码）" onkeydown="if(event.key==='Enter') tryLogin()">
+    <button class="lock-login-btn" onclick="tryLogin()">登录</button>
+  </div>
+  <div class="lock-err" id="lock-err"></div>
+  <div class="lock-switch-back" onclick="backToDesktop()">← 返回桌面</div>
+</div>
+
+<!-- 桌面 -->
+<div id="desktop">
+  <!-- 公共基础软件（所有账户都有） -->
+  <div class="desktop-folder user-common" style="top: 30px; left: 30px; display:none;" ondblclick="openWindow('thispc-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-thispc" id="icon-thispc"></div>
+    <div>此电脑</div>
+  </div>
+  <div class="desktop-folder user-common" style="top: 30px; left: 120px; display:none;" ondblclick="openWindow('recyclebin-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-recycle" id="icon-recycle"></div>
+    <div>回收站</div>
+  </div>
+  <div class="desktop-folder user-common" style="top: 30px; left: 210px; display:none;" ondblclick="openWindow('browser-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-browser"></div>
+    <div>浏览器</div>
+  </div>
+  <div class="desktop-folder user-common" style="top: 120px; left: 30px; display:none;" ondblclick="openWindow('clock-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-clock"></div>
+    <div>控制面板</div>
+  </div>
+  <!-- 学生/导员才用QQ聊天（校长和导师不显示） -->
+  <div class="desktop-folder user-qq" style="top: 120px; left: 120px; display:none;" ondblclick="openWindow('qq-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-qq"></div>
+    <div>QQ</div>
+  </div>
+  <!-- 许妍/导员专用：启明内网通（低权限版本，无法访问核心机密通道）——保留QQ -->
+  <div class="desktop-folder user-entim-low user-only-xuyan" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%23405577%22 stroke=%22%231d2b44%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%23a7b7d1%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22%23f88%22>低</text></svg>');"></div>
+    <div>启明专线(只读)</div>
+  </div>
+  <div class="desktop-folder user-entim-low user-only-teacher" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%23405577%22 stroke=%22%231d2b44%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%23a7b7d1%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22%23f88%22>低</text></svg>');"></div>
+    <div>启明专线(只读)</div>
+  </div>
+
+  <!-- 我：高三学生 -->
+  <div class="desktop-folder user-only-me" style="top: 210px; left: 30px; display:none;" ondblclick="openWindow('diary-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-diary"></div>
+    <div>日记</div>
+  </div>
+  <div class="desktop-folder user-only-me" style="top: 210px; left: 210px; display:none;" ondblclick="alert('文件夹为空，或已损坏。')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder"></div>
+    <div>旧照片</div>
+  </div>
+  <div class="desktop-folder user-only-me" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('notes-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M6 8 L6 42 L42 42 L42 16 L24 16 L20 8 Z%22 fill=%22%23f0f0a0%22 stroke=%22%23a08020%22 stroke-width=%222%22/></svg>');"></div>
+    <div>调查笔记</div>
+  </div>
+
+  <!-- 许妍：高三学生 / 失踪者 -->
+  <div class="desktop-folder user-only-xuyan" style="top: 210px; left: 30px; display:none;" ondblclick="openWindow('diary-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-diary"></div>
+    <div>日记</div>
+  </div>
+  <div class="desktop-folder user-only-xuyan" style="top: 210px; left: 210px; display:none;" ondblclick="openUserFile('xuyan_secret')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-diary" style="filter:hue-rotate(300deg);"></div>
+    <div>加密日记</div>
+  </div>
+  <div class="desktop-folder user-only-xuyan" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('b317form-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%228%22 width=%2236%22 height=%2232%22 rx=%222%22 fill=%22%23fff%22 stroke=%22%23304050%22 stroke-width=%222%22/><path d=%22M12 18 L36 18 M12 26 L36 26 M12 34 L24 34%22 stroke=%22%23607080%22 stroke-width=%221%22/></svg>');"></div>
+    <div>B-317申请单</div>
+  </div>
+
+  <!-- A03档案（来自回收站，仅校长在"还原"之后才会出现在桌面上） -->
+  <div class="desktop-folder user-only-principal" id="a03-restored" style="top: 300px; left: 210px; display:none;" ondblclick="openUserFile('a03_archive')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M6 10 L6 42 L42 42 L42 18 L24 18 L20 10 Z%22 fill=%22%23e8d090%22 stroke=%22%23704810%22 stroke-width=%222%22/><rect x=%2212%22 y=%2224%22 width=%2224%22 height=%2212%22 fill=%22%23fff5d6%22 stroke=%22%23a08030%22 stroke-width=%221%22/><text x=%2224%22 y=%2233%22 font-size=%2210%22 text-anchor=%22middle%22 fill=%22%23a02020%22 font-weight=%22bold%22>机密 A03</text></svg>');"></div>
+    <div style="color:#b03030;font-weight:bold">A03档案⚠已还原</div>
+  </div>
+
+  <!-- 张志强：导员 -->
+  <div class="desktop-folder user-only-teacher" style="top: 120px; left: 210px; display:none;" ondblclick="openWindow('lms-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-browser" style="filter:hue-rotate(120deg);"></div>
+    <div>学习管理系统</div>
+  </div>
+  <div class="desktop-folder user-only-teacher" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('mail-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%2212%22 width=%2236%22 height=%2226%22 rx=%222%22 fill=%22%23e0ecfa%22 stroke=%22%232a4870%22 stroke-width=%222%22/><path d=%22M6 14 L24 26 L42 14%22 fill=%22none%22 stroke=%22%232a4870%22 stroke-width=%222%22/></svg>');"></div>
+    <div>校内邮箱</div>
+  </div>
+  <div class="desktop-folder user-only-teacher" style="top: 300px; left: 120px; display:none;" ondblclick="openWindow('exam-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 fill=%22%23fff0e0%22 stroke=%22%23a06010%22 stroke-width=%222%22/><path d=%22M12 14 L36 14 M12 20 L36 20 M12 26 L30 26 M12 32 L26 32%22 stroke=%22%23a06010%22 stroke-width=%221%22/></svg>');"></div>
+    <div>三模卷宗</div>
+  </div>
+
+  <!-- 陈国栋：校长 -->
+  <div class="desktop-folder user-entim user-only-principal" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%231a3d6e%22 stroke=%22%230c2244%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%236fb0ff%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23c0dcff%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23c0dcff%22/><circle cx=%2236%22 cy=%2236%22 r=%225%22 fill=%22%23d04040%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22white%22>!</text></svg>');"></div>
+    <div>启明内网通</div>
+  </div>
+  <div class="desktop-folder user-only-principal" style="top: 120px; left: 210px; display:none;" ondblclick="openUserFile('principal_cover')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M4 12 L4 40 L44 40 L44 16 L22 16 L18 12 Z%22 fill=%22%23a04040%22 stroke=%22%23701010%22 stroke-width=%222%22/></svg>');"></div>
+    <div>校长密函</div>
+  </div>
+  <div class="desktop-folder user-only-principal" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('schooladmin-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%228%22 y=%228%22 width=%2232%22 height=%2232%22 fill=%22%23c08030%22 stroke=%22%23704010%22 stroke-width=%222%22/><circle cx=%2224%22 cy=%2220%22 r=%224%22 fill=%22%23fff%22 stroke=%22%23704010%22/><path d=%22M14 36 L24 26 L34 36%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%222%22/></svg>');"></div>
+    <div>校务管理</div>
+  </div>
+  <div class="desktop-folder user-only-principal" style="top: 300px; left: 120px; display:none;" ondblclick="openWindow('mail-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%2212%22 width=%2236%22 height=%2226%22 rx=%222%22 fill=%22%23ffe0e0%22 stroke=%22%23a02020%22 stroke-width=%222%22/><path d=%22M6 14 L24 26 L42 14%22 fill=%22none%22 stroke=%22%23a02020%22 stroke-width=%222%22/></svg>');"></div>
+    <div>校长邮箱</div>
+  </div>
+  <div class="desktop-folder user-only-principal" style="top: 300px; left: 300px; display:none;" ondblclick="openWindow('accesscontrol-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%2214%22 y=%228%22 width=%2220%22 height=%2232%22 rx=%222%22 fill=%22%23506070%22 stroke=%22%23203040%22 stroke-width=%222%22/><circle cx=%2230%22 cy=%2228%22 r=%222%22 fill=%22%23a0e0ff%22/><path d=%22M8 14 L14 14 M8 22 L14 22 M8 30 L14 30%22 stroke=%22%23203040%22 stroke-width=%222%22/></svg>');"></div>
+    <div>门禁总控</div>
+  </div>
+
+  <!-- 秦明辉：导师/CEO -->
+  <div class="desktop-folder user-entim user-only-mentor" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%232b1a5e%22 stroke=%22%2314083a%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%23a790ff%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23d5c7ff%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23d5c7ff%22/><circle cx=%2236%22 cy=%2236%22 r=%225%22 fill=%22%23d04040%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22white%22>!</text></svg>');"></div>
+    <div>启明内网通</div>
+  </div>
+  <div class="desktop-folder user-only-mentor" style="top: 120px; left: 210px; display:none;" ondblclick="openUserFile('mentor_log')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M4 12 L4 40 L44 40 L44 16 L22 16 L18 12 Z%22 fill=%22%23604090%22 stroke=%22%23301050%22 stroke-width=%222%22/></svg>');"></div>
+    <div>实验日志</div>
+  </div>
+  <div class="desktop-folder user-only-mentor" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('qx18console-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%224%22 y=%228%22 width=%2240%22 height=%2232%22 rx=%223%22 fill=%22%23102030%22 stroke=%22%234080a0%22 stroke-width=%222%22/><circle cx=%2224%22 cy=%2224%22 r=%226%22 fill=%22none%22 stroke=%22%2360e0ff%22 stroke-width=%222%22/><circle cx=%2224%22 cy=%2224%22 r=%222%22 fill=%22%2360e0ff%22/><path d=%22M8 14 L14 14 M34 14 L40 14 M8 34 L14 34 M34 34 L40 34%22 stroke=%22%2360e0ff%22 stroke-width=%221%22/></svg>');"></div>
+    <div>QX18控制台</div>
+  </div>
+  <div class="desktop-folder user-only-mentor" style="top: 300px; left: 120px; display:none;" ondblclick="openWindow('mail-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%2212%22 width=%2236%22 height=%2226%22 rx=%222%22 fill=%22%23e8e0fa%22 stroke=%22%236040a0%22 stroke-width=%222%22/><path d=%22M6 14 L24 26 L42 14%22 fill=%22none%22 stroke=%22%236040a0%22 stroke-width=%222%22/></svg>');"></div>
+    <div>企业邮箱</div>
+  </div>
+  <div class="desktop-folder user-only-mentor" style="top: 210px; left: 30px; display:none;" ondblclick="openWindow('dataview-window')" onclick="selectIcon(this)">
+    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%224%22 y=%2210%22 width=%2240%22 height=%2228%22 fill=%22%23fff%22 stroke=%22%232a4870%22 stroke-width=%222%22/><rect x=%2210%22 y=%2232%22 width=%224%22 height=%226%22 fill=%22%234080a0%22/><rect x=%2218%22 y=%2226%22 width=%224%22 height=%2212%22 fill=%22%234080a0%22/><rect x=%2226%22 y=%2220%22 width=%224%22 height=%2218%22 fill=%22%234080a0%22/><rect x=%2234%22 y=%2216%22 width=%224%22 height=%2222%22 fill=%22%23a04040%22/></svg>');"></div>
+    <div>数据分析</div>
+  </div>
+
+  <!-- 开始菜单 -->
+  <div id="start-menu">
+    <div class="start-menu-header">
+      <div class="start-menu-avatar" id="menu-avatar">我</div>
+      <div id="menu-username">当前用户</div>
+    </div>
+    <div class="start-menu-list" id="start-menu-list">
+      <div class="sm-item sm-me sm-xuyan" onclick="openWindow('diary-window'); closeStartMenu()">
+        <span class="icon">📔</span> 日记
+      </div>
+      <div class="sm-item sm-me sm-xuyan sm-teacher" onclick="openWindow('qq-window'); closeStartMenu()">
+        <span class="icon">💬</span> QQ聊天
+      </div>
+      <div class="sm-item sm-me" onclick="openWindow('notes-window'); closeStartMenu()">
+        <span class="icon">📝</span> 调查笔记
+      </div>
+      <div class="sm-item sm-xuyan" onclick="openUserFile('xuyan_secret'); closeStartMenu()">
+        <span class="icon">🔒</span> 加密日记
+      </div>
+      <div class="sm-item sm-xuyan" onclick="openWindow('b317form-window'); closeStartMenu()">
+        <span class="icon">📋</span> B-317实验申请单
+      </div>
+      <div class="sm-item sm-teacher" onclick="openWindow('lms-window'); closeStartMenu()">
+        <span class="icon">📚</span> 学习管理系统
+      </div>
+      <div class="sm-item sm-teacher" onclick="openWindow('mail-window'); closeStartMenu()">
+        <span class="icon">📧</span> 校内邮箱
+      </div>
+      <div class="sm-item sm-teacher" onclick="openWindow('exam-window'); closeStartMenu()">
+        <span class="icon">📋</span> 三模卷宗
+      </div>
+      <div class="sm-item sm-principal" onclick="openUserFile('principal_cover'); closeStartMenu()">
+        <span class="icon">🔴</span> 校长密函
+      </div>
+      <div class="sm-item sm-principal" onclick="openWindow('schooladmin-window'); closeStartMenu()">
+        <span class="icon">📊</span> 校务管理
+      </div>
+      <div class="sm-item sm-principal" onclick="openWindow('mail-window'); closeStartMenu()">
+        <span class="icon">📧</span> 校长办公邮箱
+      </div>
+      <div class="sm-item sm-principal" onclick="openWindow('accesscontrol-window'); closeStartMenu()">
+        <span class="icon">🔑</span> 门禁总控
+      </div>
+      <div class="sm-item sm-principal sm-mentor" onclick="openWindow('im-window'); closeStartMenu()">
+        <span class="icon">🔒</span> 启明内网通（加密通讯）
+      </div>
+      <div class="sm-item sm-xuyan sm-teacher" onclick="openWindow('im-window'); closeStartMenu()">
+        <span class="icon">🔒</span> 启明专线（只读 · 日志通道）
+      </div>
+      <div class="sm-item sm-mentor" onclick="openUserFile('mentor_log'); closeStartMenu()">
+        <span class="icon">🟣</span> 实验日志
+      </div>
+      <div class="sm-item sm-mentor" onclick="openWindow('qx18console-window'); closeStartMenu()">
+        <span class="icon">💻</span> QX18控制台
+      </div>
+      <div class="sm-item sm-mentor" onclick="openWindow('mail-window'); closeStartMenu()">
+        <span class="icon">📧</span> 企业邮箱
+      </div>
+      <div class="sm-item sm-mentor" onclick="openWindow('dataview-window'); closeStartMenu()">
+        <span class="icon">📈</span> 数据分析
+      </div>
+      <div class="sm-item sm-all" style="border-top:1px solid #cdd6e0; margin-top:6px; padding-top:6px;" onclick="openWindow('browser-window'); closeStartMenu()">
+        <span class="icon">🌐</span> Web浏览器
+      </div>
+      <div class="sm-item sm-all" onclick="openWindow('thispc-window'); closeStartMenu()">
+        <span class="icon">🖥️</span> 此电脑
+      </div>
+      <div class="sm-item sm-all" onclick="openWindow('clock-window'); closeStartMenu()">
+        <span class="icon">⏰</span> 控制面板 / 日期时间
+      </div>
+      <div class="sm-item sm-all" onclick="alert('这个程序已损坏。\\n错误代码: 0x00000008\\n\\n无法访问网络邻居。'); closeStartMenu()">
+        <span class="icon">🌐</span> 网络邻居
+      </div>
+      <div class="sm-item sm-all" onclick="openWindow('recyclebin-window'); closeStartMenu()">
+        <span class="icon">🗑️</span> 回收站
+      </div>
+      <div class="sm-item sm-all" style="border-top:1px solid #cdd6e0; margin-top:6px; padding-top:6px;" onclick="openLockScreen(); closeStartMenu()">
+        <span class="icon">🔐</span> 切换用户 / 锁屏
+      </div>
+      <div class="sm-item sm-all" onclick="closeStartMenu(); showConfirm('确定要关机吗？\\n（会重置所有进度）', () => location.reload(), '关机')">
+        <span class="icon">🔌</span> 关机
+      </div>
+    </div>
+  </div>
+
+  <div class="taskbar" id="taskbar" style="display:none">
+    <div class="start-btn" id="start-btn" onclick="toggleStartMenu()">开</div>
+    <div class="task-item" id="taskbtn-diary" onclick="focusWindow('diary-window')">📔 日记</div>
+    <div class="task-item" id="taskbtn-qq" onclick="focusWindow('qq-window')">💬 QQ</div>
+    <div class="task-item" id="taskbtn-browser" onclick="focusWindow('browser-window')">🌐 浏览器</div>
+    <div class="task-item" id="taskbtn-clock" onclick="focusWindow('clock-window')">⏰ 控制面板</div>
+    <div class="task-item" id="taskbtn-file" onclick="focusWindow('file-viewer-window')">📄 文档</div>
+    <div class="task-item" id="taskbtn-lms" onclick="focusWindow('lms-window')">📚 学习系统</div>
+    <div class="task-item" id="taskbtn-notes" onclick="focusWindow('notes-window')">📝 调查笔记</div>
+    <div class="task-item" id="taskbtn-b317" onclick="focusWindow('b317form-window')">📋 B-317申请单</div>
+    <div class="task-item" id="taskbtn-mail" onclick="focusWindow('mail-window')">📧 邮件</div>
+    <div class="task-item" id="taskbtn-exam" onclick="focusWindow('exam-window')">📋 三模卷宗</div>
+    <div class="task-item" id="taskbtn-sa" onclick="focusWindow('schooladmin-window')">📊 校务管理</div>
+    <div class="task-item" id="taskbtn-ac" onclick="focusWindow('accesscontrol-window')">🔑 门禁总控</div>
+    <div class="task-item" id="taskbtn-qx" onclick="focusWindow('qx18console-window')">💻 QX18控制台</div>
+    <div class="task-item" id="taskbtn-dv" onclick="focusWindow('dataview-window')">📈 数据分析</div>
+    <div class="task-item" id="taskbtn-im" onclick="focusWindow('im-window')">🔒 启明内网通</div>
+    <div class="task-item" id="taskbtn-thispc" onclick="focusWindow('thispc-window')">💻 此电脑</div>
+    <div class="task-item" id="taskbtn-recycle" onclick="focusWindow('recyclebin-window')">🗑️ 回收站</div>
+    <div class="task-clock" id="task-clock">2018/06/14 18:41</div>
+  </div>
+</div>
+
+<!-- 日记 -->
+<div class="window" id="diary-window">
+  <div class="window-title" onmousedown="startDrag(event, 'diary-window')">
+    <div class="window-title-text">� 日记</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('diary-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('diary-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body">
+    <div class="diary-container" id="diary-container"></div>
+  </div>
+</div>
+
+<!-- QQ聊天窗口 -->
+<div class="window" id="qq-window">
+  <div class="window-title" onmousedown="startDrag(event, 'qq-window')">
+    <div class="window-title-text">💬 QQ - 我的电脑</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('qq-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('qq-window')">✕</button>
+    </div>
+  </div>
+  <div class="qq-container">
+    <div class="qq-left-panel">
+      <div class="qq-avatar-bar">
+        <div class="qq-avatar qq-avatar-me">我</div>
+        <div>我的好友列表</div>
+      </div>
+      <div class="qq-contact-list" id="qq-contact-list"></div>
+    </div>
+    <div class="qq-right-panel">
+      <div class="qq-chat-title" id="qq-chat-title">与 许妍 的对话</div>
+      <div class="qq-chat-area" id="qq-chat-area"></div>
+      <div class="qq-input-area">
+        <textarea class="qq-input-box" id="qq-input-box" placeholder="输入消息...（无法发送 - 这是历史记录）" readonly></textarea>
+        <button class="qq-send-btn" onclick="alert('无法发送消息。\\n这是我的本地聊天历史记录，许妍那边再也不会回复了...')">发送</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 控制面板/时钟窗口 -->
+<div class="window" id="clock-window">
+  <div class="window-title" onmousedown="startDrag(event, 'clock-window')">
+    <div class="window-title-text">⏰ 控制面板 - 日期和时间</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('clock-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('clock-window')">✕</button>
+    </div>
+  </div>
+  <div class="clock-container">
+    <div class="clock-face" id="clock-face">
+      <div class="clock-hand hour" id="clock-hour"></div>
+      <div class="clock-hand minute" id="clock-minute"></div>
+      <div class="clock-hand second" id="clock-second"></div>
+      <div class="clock-center"></div>
+    </div>
+    <div class="clock-digital" id="clock-digital">2018/06/14 18:41:00</div>
+    <div class="clock-set-panel">
+      <span class="label">年</span><input type="text" id="clock-year" value="2018" maxlength="4">
+      <span class="label">月</span><input type="text" id="clock-month" value="06" maxlength="2">
+      <span class="label">日</span><input type="text" id="clock-day" value="14" maxlength="2">
+      <span class="label">时</span><input type="text" id="clock-hour-input" value="18" maxlength="2">
+      <span class="label">分</span><input type="text" id="clock-min-input" value="41" maxlength="2">
+      <span class="label">秒</span><input type="text" id="clock-sec-input" value="00" maxlength="2">
+    </div>
+    <button class="clock-apply-btn" onclick="applyClock()">应用</button>
+    <div class="clock-note" id="clock-note">
+      <span class="clock-hint-wrong">⚠ 系统时间似乎不正确...<br>这个日期是许妍失踪的日子。</span>
+    </div>
+  </div>
+</div>
+
+<!-- 文件查看器（用于加密文档） -->
+<div class="window" id="file-viewer-window">
+  <div class="window-title" onmousedown="startDrag(event, 'file-viewer-window')">
+    <div class="window-title-text" id="file-viewer-title">📄 文档</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('file-viewer-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('file-viewer-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body">
+    <div class="file-viewer" id="file-viewer-body"></div>
+  </div>
+</div>
+
+<!-- 学习管理系统（导员专属） -->
+<div class="window" id="notes-window">
+  <div class="window-title" onmousedown="startDrag(event, 'notes-window')">
+    <div class="window-title-text">📝 调查笔记</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('notes-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('notes-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="notes-root"></div></div>
+</div>
+
+<div class="window" id="b317form-window">
+  <div class="window-title" onmousedown="startDrag(event, 'b317form-window')">
+    <div class="window-title-text">📋 B-317实验室 · 实验申请单</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('b317form-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('b317form-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="b317form-root"></div></div>
+</div>
+
+<div class="window" id="mail-window">
+  <div class="window-title" onmousedown="startDrag(event, 'mail-window')">
+    <div class="window-title-text" id="mail-title">📧 邮件</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('mail-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('mail-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="mail-root"></div></div>
+</div>
+
+<div class="window" id="exam-window">
+  <div class="window-title" onmousedown="startDrag(event, 'exam-window')">
+    <div class="window-title-text">📋 三模考试卷宗（原始纸质扫描）</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('exam-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('exam-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="exam-root"></div></div>
+</div>
+
+<div class="window" id="schooladmin-window">
+  <div class="window-title" onmousedown="startDrag(event, 'schooladmin-window')">
+    <div class="window-title-text">📊 校务管理平台 · 校长端</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('schooladmin-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('schooladmin-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="schooladmin-root"></div></div>
+</div>
+
+<div class="window" id="accesscontrol-window">
+  <div class="window-title" onmousedown="startDrag(event, 'accesscontrol-window')">
+    <div class="window-title-text">🔑 校园门禁总控中心</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('accesscontrol-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('accesscontrol-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="accesscontrol-root"></div></div>
+</div>
+
+<div class="window" id="qx18console-window">
+  <div class="window-title" onmousedown="startDrag(event, 'qx18console-window')">
+    <div class="window-title-text">💻 QX-18 神经锚定实验控制台</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('qx18console-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('qx18console-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="qx18console-root"></div></div>
+</div>
+
+<div class="window" id="dataview-window">
+  <div class="window-title" onmousedown="startDrag(event, 'dataview-window')">
+    <div class="window-title-text">📈 实验数据分析面板</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('dataview-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('dataview-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;"><div id="dataview-root"></div></div>
+</div>
+
+<!-- 启明内网通（校长/导师专用加密通讯；许妍/导员低权限只读版） -->
+<div class="window" id="im-window">
+  <div class="window-title" onmousedown="startDrag(event, 'im-window')">
+    <div class="window-title-text" id="im-title">🔒 启明内网通 · 加密会话</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('im-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('im-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;">
+    <div id="im-root"></div>
+  </div>
+</div>
+
+<!-- 此电脑（资源管理器） -->
+<div class="window" id="thispc-window">
+  <div class="window-title" onmousedown="startDrag(event, 'thispc-window')">
+    <div class="window-title-text">💻 此电脑</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('thispc-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('thispc-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;">
+    <div id="thispc-root"></div>
+  </div>
+</div>
+
+<!-- 回收站 -->
+<div class="window" id="recyclebin-window">
+  <div class="window-title" onmousedown="startDrag(event, 'recyclebin-window')">
+    <div class="window-title-text">🗑️ 回收站</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('recyclebin-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('recyclebin-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;">
+    <div id="recycle-root"></div>
+  </div>
+</div>
+
+<div class="window" id="lms-window">
+  <div class="window-title" onmousedown="startDrag(event, 'lms-window')">
+    <div class="window-title-text">📚 学习管理系统 · DCYZ-LMS</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('lms-window')">_</button>
+      <button>▢</button>
+      <button class="close" onclick="closeWindow('lms-window')">✕</button>
+    </div>
+  </div>
+  <div class="window-body" style="padding:0;">
+    <div id="lms-root"></div>
+  </div>
+</div>
+
+<!-- 浏览器 -->
+<div class="window" id="browser-window">
+  <div class="window-title" onmousedown="startDrag(event, 'browser-window')">
+    <div class="window-title-text">🌐 Web浏览器</div>
+    <div class="window-controls">
+      <button onclick="minimizeWindow('browser-window')">_</button>
+      <button onclick="maximizeWindow('browser-window')">▢</button>
+      <button class="close" onclick="closeWindow('browser-window')">✕</button>
+    </div>
+  </div>
+  <div style="background:#f8f8f8; padding: 8px 8px 0;">
+    <div class="browser-tabs" id="browser-tabs">
+      <div class="tab active" data-tab="newtab" onclick="switchTab('newtab')">
+        新标签页 <span class="close-tab" onclick="event.stopPropagation()">×</span>
+      </div>
+    </div>
+  </div>
+  <div class="browser-toolbar">
+    <button class="nav-btn" onclick="browserBack()" id="nav-back">◀</button>
+    <button class="nav-btn" onclick="browserForward()" id="nav-forward">▶</button>
+    <button class="nav-btn" onclick="browserRefresh()">↻</button>
+    <div class="address-bar">
+      <span class="proto" id="url-proto">http://</span>
+      <input type="text" id="url-input" value="" onkeydown="if(event.key==='Enter') browserGo()">
+      <button class="go-btn" onclick="browserGo()">→</button>
+    </div>
+    <button class="nav-btn" title="书签" onclick="alert('书签：\\n1. 东川一中官网 www.dcyz-edu.cn\\n2. 启明星计划 www.qx18-project.org\\n3. 启明教育 www.qiming-edu.com\\n4. 校园内网 intranet.dcyz-edu.cn')">★</button>
+  </div>
+  <div class="browser-content" id="browser-content"></div>
+</div>
+
+<!-- 结局界面 -->
+<div id="ending-screen">
+  <div class="ending-title">白 昼 失 踪</div>
+  <div class="ending-text" id="ending-text"></div>
+  <div class="ending-photo" id="ending-photo"></div>
+  <div class="ending-photo-back" id="ending-photo-back" style="display:none"></div>
+  <div class="ending-final" id="ending-final"></div>
+  <button class="btn" style="margin-top:40px;" onclick="document.getElementById('ending-screen').classList.remove('active')">← 返回继续探索</button>
+</div>
+
+<!-- 游戏内模态框 -->
+
+<!-- 游戏内自定义右键菜单（Windows经典风格） -->
+<ul id="ctx-menu" class="ctx-menu">
+  <li class="ctx-item" onclick="ctxAction('refresh')"><span class="ctx-icon">🗘</span><span class="ctx-label">刷新(E)</span><span class="ctx-short">F5</span></li>
+  <li class="ctx-sep"></li>
+  <li class="ctx-item has-sub" onclick="ctxAction('view')">
+    <span class="ctx-icon">▦</span><span class="ctx-label">查看(V)</span><span class="ctx-arrow">▶</span>
+    <ul class="ctx-submenu">
+      <li class="ctx-item checked" onclick="ctxAction('view_large')"><span class="ctx-icon"></span><span class="ctx-label">大图标</span></li>
+      <li class="ctx-item" onclick="ctxAction('view_small')"><span class="ctx-icon"></span><span class="ctx-label">小图标</span></li>
+      <li class="ctx-sep"></li>
+      <li class="ctx-item checked" onclick="ctxAction('view_align')"><span class="ctx-icon"></span><span class="ctx-label">自动排列图标</span></li>
+      <li class="ctx-item checked" onclick="ctxAction('view_grid')"><span class="ctx-icon"></span><span class="ctx-label">对齐到网格</span></li>
+    </ul>
+  </li>
+  <li class="ctx-item" onclick="ctxAction('arrange')"><span class="ctx-icon">↕</span><span class="ctx-label">排列图标(I)</span></li>
+  <li class="ctx-sep"></li>
+  <li class="ctx-item has-sub" onclick="ctxAction('new')">
+    <span class="ctx-icon">📄</span><span class="ctx-label">新建(W)</span><span class="ctx-arrow">▶</span>
+    <ul class="ctx-submenu">
+      <li class="ctx-item" onclick="ctxAction('new_folder')"><span class="ctx-icon">📁</span><span class="ctx-label">文件夹</span></li>
+      <li class="ctx-item" onclick="ctxAction('new_txt')"><span class="ctx-icon">📝</span><span class="ctx-label">文本文档</span></li>
+      <li class="ctx-item" onclick="ctxAction('new_bmp')"><span class="ctx-icon">🖼️</span><span class="ctx-label">BMP图像</span></li>
+    </ul>
+  </li>
+  <li class="ctx-sep"></li>
+  <li class="ctx-item" onclick="ctxAction('paste')"><span class="ctx-icon">📋</span><span class="ctx-label">粘贴(P)</span></li>
+  <li class="ctx-item disabled"><span class="ctx-icon">📎</span><span class="ctx-label">粘贴快捷方式(S)</span></li>
+  <li class="ctx-sep"></li>
+  <li class="ctx-item" onclick="ctxAction('undo')"><span class="ctx-icon">↶</span><span class="ctx-label">撤销删除(U)</span><span class="ctx-short">Ctrl+Z</span></li>
+  <li class="ctx-sep"></li>
+  <li class="ctx-item" onclick="ctxAction('properties')"><span class="ctx-icon">🛈</span><span class="ctx-label">属性(R)</span></li>
+</ul>
+
+<div id="game-modal-overlay" class="game-modal-overlay">
+  <div class="game-modal">
+    <div class="game-modal-header" id="gm-header">提示</div>
+    <div class="game-modal-body" id="gm-body"></div>
+    <div class="game-modal-footer" id="gm-footer"></div>
+  </div>
+</div>
+
+<script src="js/game.js"></script>
+</body>
+</html>
