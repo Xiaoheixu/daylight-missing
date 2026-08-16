@@ -1,5 +1,143 @@
 /* 白昼失踪 - 游戏主逻辑 */
 
+// ================== 设备检测与适配（手机端/电脑端） ==================
+(function detectDeviceAndAdapt(){
+  // 设备类型检测：综合UA+触摸能力+屏幕宽度判断
+  const ua = navigator.userAgent || '';
+  const hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  const isMobileUA = /Android|iPhone|iPad|iPod|Mobile|Windows Phone|SymbianOS|BlackBerry/i.test(ua);
+  // iPadOS 13+ 伪装为桌面UA，靠触摸点数识别
+  const isPadLike = navigator.maxTouchPoints > 1 && /Macintosh/.test(ua);
+  // 屏幕宽度 ≤ 900px 视作移动端布局
+  const isSmallScreen = window.innerWidth <= 900;
+
+  // 最终判定：手机端
+  window.IS_MOBILE = (isMobileUA && hasTouch) || isPadLike || (hasTouch && isSmallScreen);
+  // 最终判定：触摸设备（含平板）
+  window.IS_TOUCH = hasTouch && (isMobileUA || isPadLike || isSmallScreen);
+
+  // 给<html>打标记，便于CSS差异化
+  const cl = document.documentElement.classList;
+  if(window.IS_MOBILE) cl.add('mode-mobile');
+  else if(window.IS_TOUCH) cl.add('mode-touch');
+  else cl.add('mode-desktop');
+
+  // 防止移动端双击缩放、长按选中文字
+  if(window.IS_TOUCH){
+    document.addEventListener('gesturestart', e => e.preventDefault());
+    document.addEventListener('dblclick', e => e.preventDefault(), { passive:false });
+    // 长按弹出系统菜单的屏蔽（图标、任务栏、窗口标题等）
+    document.addEventListener('contextmenu', e => {
+      // 只屏蔽桌面图标、任务栏、窗口标题、开始菜单区域
+      if(e.target.closest('.desktop-folder, .taskbar, .window-title, #start-menu, .start-menu-list')){
+        e.preventDefault();
+      }
+    }, { passive:false });
+  }
+
+  // 记录到全局，便于其他模块使用
+  window.deviceMode = window.IS_MOBILE ? 'mobile' : (window.IS_TOUCH ? 'touch' : 'desktop');
+})();
+
+// ================== 统一的桌面图标事件代理（手机单击/电脑双击） ==================
+(function desktopIconEventProxy(){
+  // 防止重复绑定
+  if(window.__desktopIconBound) return;
+  window.__desktopIconBound = true;
+
+  const desktop = document.getElementById('desktop') || document.body;
+  // 双击间隔阈值（毫秒）：电脑端判定为双击
+  const DBL_CLICK_THRESHOLD = 300;
+  // 单击命中后等待是否双击的延时（仅电脑端生效）
+  const CLICK_WAIT = 280;
+
+  // 工具：执行 data-open 表达式（受限：只允许调用 openWindow/openUserFile/alert）
+  function execOpen(el, e){
+    const code = el.getAttribute('data-open');
+    if(!code) return;
+    // 白名单函数校验
+    if(!/^(openWindow|openUserFile|alert)\(['"\s\S]+\)$/.test(code.trim())) {
+      console.warn('[安全] 非法 data-open:', code);
+      return;
+    }
+    try { (new Function(code))(); } catch(err){ console.error('data-open执行错误:', err); }
+  }
+
+  // 选中图标（高亮）
+  function selectIcon(el){
+    document.querySelectorAll('.desktop-folder').forEach(f => f.classList.remove('selected'));
+    if(el) el.classList.add('selected');
+  }
+
+  // 暴露给全局，兼容旧调用
+  window.selectIcon = selectIcon;
+
+  // ---- 电脑端：双击打开，单击选中 ----
+  // 用原生 dblclick 监听
+  function bindDesktopEvents(){
+    const icons = () => desktop.querySelectorAll('.desktop-folder[data-open]');
+
+    if(window.IS_MOBILE || window.IS_TOUCH){
+      // ============ 触屏 / 手机端 ============
+      // 单击即打开（按住超过300ms算作多选/长按不触发打开）
+      let touchStartTime = 0;
+      let touchStartTarget = null;
+      let touchMoved = false;
+
+      icons().forEach(icon => {
+        // 触屏：tap 即打开
+        icon.addEventListener('touchstart', (e) => {
+          touchStartTime = Date.now();
+          touchStartTarget = icon;
+          touchMoved = false;
+        }, { passive:true });
+
+        icon.addEventListener('touchmove', (e) => {
+          touchMoved = true;
+        }, { passive:true });
+
+        icon.addEventListener('touchend', (e) => {
+          if(touchMoved) return;             // 滑动不触发
+          if(Date.now() - touchStartTime > 500) return;  // 长按不触发打开
+          if(touchStartTarget !== icon) return;
+          e.preventDefault();
+          selectIcon(icon);
+          // 延迟100ms打开，让选中视觉先显示
+          setTimeout(() => execOpen(icon, e), 80);
+        }, { passive:false });
+
+        // 兼容鼠标点击（手机上偶尔会用蓝牙鼠标）
+        icon.addEventListener('click', (e) => {
+          // 触屏已经处理过，忽略
+          if(e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents) return;
+          selectIcon(icon);
+          // 手机端鼠标也用单击
+          setTimeout(() => execOpen(icon, e), 80);
+        });
+      });
+    } else {
+      // ============ 桌面端 ============
+      // 保留双击打开 + 单击选中的 Windows 经典逻辑
+      icons().forEach(icon => {
+        icon.addEventListener('click', (e) => {
+          selectIcon(icon);
+        });
+        icon.addEventListener('dblclick', (e) => {
+          execOpen(icon, e);
+        });
+      });
+    }
+  }
+
+  // DOM 就绪后绑定
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindDesktopEvents);
+  } else {
+    bindDesktopEvents();
+  }
+  // 切换用户后桌面图标 display 变化但元素本身还在，事件绑定保留
+})();
+
 // ================== 安全：禁用浏览器默认右键，改用游戏内自定义右键菜单 ==================
 (function(){
   // ---- 自定义右键菜单控制 ----
@@ -968,25 +1106,44 @@ function maximizeWindow(id){
     w.dataset.maximized = '1';
   }
 }
-function selectIcon(el){
-  document.querySelectorAll('.desktop-folder').forEach(f => f.classList.remove('selected'));
-  el.classList.add('selected');
-}
+// selectIcon 已在事件代理模块中实现并暴露到 window.selectIcon
+// 此处保留旧函数签名以兼容，直接转发
 let dragTarget = null, dragOffX = 0, dragOffY = 0;
 function startDrag(e, id){
   dragTarget = document.getElementById(id);
+  if(!dragTarget) return;
+  // 兼容鼠标和触屏：统一取坐标
+  let cx, cy;
+  if(e.touches && e.touches.length){
+    cx = e.touches[0].clientX;
+    cy = e.touches[0].clientY;
+  } else {
+    cx = e.clientX; cy = e.clientY;
+  }
   const r = dragTarget.getBoundingClientRect();
-  dragOffX = e.clientX - r.left;
-  dragOffY = e.clientY - r.top;
+  dragOffX = cx - r.left;
+  dragOffY = cy - r.top;
   dragTarget.style.zIndex = ++zCounter;
-  e.preventDefault();
+  if(e.preventDefault) e.preventDefault();
 }
+// 鼠标拖拽
 document.addEventListener('mousemove', e => {
   if(!dragTarget) return;
   dragTarget.style.left = (e.clientX - dragOffX) + 'px';
   dragTarget.style.top = (e.clientY - dragOffY) + 'px';
 });
 document.addEventListener('mouseup', () => dragTarget = null);
+// 触屏拖拽
+document.addEventListener('touchmove', e => {
+  if(!dragTarget) return;
+  if(!e.touches.length) return;
+  const t = e.touches[0];
+  dragTarget.style.left = (t.clientX - dragOffX) + 'px';
+  dragTarget.style.top = (t.clientY - dragOffY) + 'px';
+  e.preventDefault();
+}, { passive:false });
+document.addEventListener('touchend', () => dragTarget = null);
+document.addEventListener('touchcancel', () => dragTarget = null);
 
 // ================== 开始菜单 ==================
 function toggleStartMenu(){

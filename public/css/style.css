@@ -2220,3 +2220,414 @@ table.data-table tr.odd { background: #fafafa; }
 .dv-table th, .dv-table td { border:1px solid #d0d8e0; padding:6px 10px; text-align:center; }
 .dv-table th { background:#e4ecf4; color:#1a3a60; }
 .dv-table tr.special td { background:#fff0f0; color:#c00; font-weight:bold; }
+
+/* ========================================================================== */
+/*           移动端 / 触屏设备适配（mode-mobile / mode-touch）                 */
+/* ========================================================================== */
+
+/* ---- 触屏基础优化（含平板） ---- */
+html.mode-touch, html.mode-mobile {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+html.mode-touch .desktop-folder,
+html.mode-mobile .desktop-folder {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* ---- 手机端：桌面图标自动网格化布局，防止超出屏幕 ---- */
+html.mode-mobile #desktop {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 4px 80px 4px;
+}
+html.mode-mobile .desktop-folder {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  display: none;
+  width: 72px;
+  height: 84px;
+  margin: 4px;
+  padding: 6px 2px;
+}
+html.mode-mobile .desktop-folder[style*="display:none"] { display:none !important; }
+html.mode-mobile .desktop-folder[style*="display:block"],
+html.mode-mobile .desktop-folder[style*="display: block"] { display:inline-block !important; }
+
+/* 桌面图标自适应换行（每行4个） */
+html.mode-mobile #desktop {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* 手机端图标更大、更易点击 */
+html.mode-mobile .folder-icon {
+  width: 48px; height: 48px;
+}
+html.mode-mobile .desktop-folder > div:last-child {
+  font-size: 11px;
+  line-height: 1.3;
+  max-width: 72px;
+  word-break: break-all;
+}
+
+/* ---- 手机端窗口：全屏化 ---- */
+html.mode-mobile .window {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  height: 100vh !important;
+  max-height: 100vh !important;
+  border-radius: 0;
+}
+html.mode-mobile .window-body {
+  padding: 8px;
+  font-size: 13px;
+}
+
+/* ---- 手机端任务栏自适应 ---- */
+html.mode-mobile .taskbar {
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0 4px;
+  scrollbar-width: none;
+}
+html.mode-mobile .taskbar::-webkit-scrollbar { display:none; }
+html.mode-mobile .task-item {
+  padding: 4px 8px;
+  font-size: 11px;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html.mode-mobile .task-clock {
+  font-size: 10px;
+  padding: 0 6px;
+}
+
+/* ---- 手机端开始菜单：底部弹出 ---- */
+html.mode-mobile #start-menu {
+  top: auto;
+  bottom: 32px;
+  left: 0;
+  right: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+html.mode-mobile .start-menu-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+html.mode-mobile .sm-item {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* ---- 手机端窗口标题栏按钮变大 ---- */
+html.mode-mobile .window-title {
+  height: 36px;
+  padding: 0 4px;
+}
+html.mode-mobile .window-controls button {
+  min-width: 36px;
+  min-height: 28px;
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+/* ---- 手机端 QQ / 启明内网通：纵向布局 ---- */
+html.mode-mobile .qq-container,
+html.mode-mobile .im-container {
+  flex-direction: column;
+}
+html.mode-mobile .qq-left-panel,
+html.mode-mobile .im-left-panel {
+  width: 100%;
+  max-height: 30vh;
+  border-right: none;
+  border-bottom: 1px solid #888;
+}
+html.mode-mobile .qq-right-panel,
+html.mode-mobile .im-right-panel {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---- 手机端资源管理器：纵向布局 ---- */
+html.mode-mobile .explorer-body {
+  flex-direction: column;
+}
+html.mode-mobile .exp-side-nav {
+  width: 100%;
+  max-height: 120px;
+  border-right: none;
+  border-bottom: 1px solid #c8ccd1;
+  overflow-x: auto;
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+}
+html.mode-mobile .exp-side-item {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+html.mode-mobile .exp-side-title { display:none; }
+
+/* ---- 手机端邮件应用：纵向布局 ---- */
+html.mode-mobile .mail-body {
+  flex-direction: column;
+}
+html.mode-mobile .mail-folders,
+html.mode-mobile .mail-list {
+  width: 100%;
+  max-height: 100px;
+  border-right: none;
+  border-bottom: 1px solid #ddd;
+}
+html.mode-mobile .mail-folders { display:flex; overflow-x:auto; }
+html.mode-mobile .mail-folder { white-space:nowrap; padding:8px 12px; }
+
+/* ---- 手机端LMS：纵向布局 ---- */
+html.mode-mobile .lms-app {
+  flex-direction: column;
+}
+html.mode-mobile .lms-sidebar {
+  width: 100%;
+  max-height: 100px;
+  border-right: none;
+  border-bottom: 1px solid #c8d0e0;
+  display: flex;
+  overflow-x: auto;
+}
+html.mode-mobile .lms-nav-item {
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-left: none;
+  border-bottom: 3px solid transparent;
+}
+html.mode-mobile .lms-nav-item.active {
+  border-bottom-color: #1a3a60;
+}
+
+/* ---- 手机端校务管理：纵向布局 ---- */
+html.mode-mobile .sa-body {
+  flex-direction: column;
+}
+html.mode-mobile .sa-side {
+  width: 100%;
+  max-height: 100px;
+  border-right: none;
+  border-bottom: 1px solid #c09060;
+  display: flex;
+  overflow-x: auto;
+}
+html.mode-mobile .sa-nav {
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-left: none;
+  border-bottom: 3px solid transparent;
+}
+html.mode-mobile .sa-nav.active { border-bottom-color: #8a4020; }
+
+/* ---- 手机端门禁总控：纵向布局 ---- */
+html.mode-mobile .ac-body {
+  flex-direction: column;
+}
+html.mode-mobile .ac-gates {
+  width: 100%;
+  max-height: 100px;
+  border-right: none;
+  border-bottom: 1px solid #204060;
+  display: flex;
+  overflow-x: auto;
+}
+html.mode-mobile .ac-gate {
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-left: none;
+  border-bottom: 3px solid transparent;
+}
+html.mode-mobile .ac-gate.active { border-bottom-color: #60e0ff; }
+
+/* ---- 手机端QX18控制台：纵向布局 ---- */
+html.mode-mobile .qx-body {
+  flex-direction: column;
+}
+html.mode-mobile .qx-side {
+  width: 100%;
+  max-height: 120px;
+  border-left: none;
+  border-top: 1px solid #402080;
+  overflow-x: auto;
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+}
+html.mode-mobile .qx-subject {
+  flex-shrink: 0;
+  min-width: 130px;
+}
+html.mode-mobile .qx-panels {
+  grid-template-columns: 1fr;
+}
+
+/* ---- 手机端数据分析：纵向布局 ---- */
+html.mode-mobile .dv-body {
+  grid-template-columns: 1fr;
+}
+html.mode-mobile .dv-chart.full {
+  grid-column: span 1;
+}
+
+/* ---- 手机端浏览器：紧凑化 ---- */
+html.mode-mobile #browser-window .browser-toolbar {
+  flex-wrap: wrap;
+  padding: 4px;
+}
+html.mode-mobile .address-bar {
+  flex: 1 1 100%;
+  min-width: 0;
+  margin-top: 4px;
+}
+html.mode-mobile .address-bar input {
+  min-width: 0;
+  width: 100%;
+}
+
+/* ---- 手机端时钟：紧凑化 ---- */
+html.mode-mobile #clock-window {
+  padding: 12px;
+}
+html.mode-mobile .clock-set-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+html.mode-mobile .clock-set-panel .label {
+  width: auto;
+}
+
+/* ---- 手机端锁屏：紧凑化 ---- */
+html.mode-mobile #lock-screen {
+  padding: 20px 12px;
+}
+html.mode-mobile .lock-user-list {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  max-width: 100%;
+}
+html.mode-mobile .lock-user-avatar {
+  width: 56px; height: 56px;
+  font-size: 20px;
+}
+html.mode-mobile .lock-input-row {
+  flex-wrap: wrap;
+}
+
+/* ---- 手机端前言 / 结局：紧凑化 ---- */
+html.mode-mobile #prologue-screen,
+html.mode-mobile #ending-screen {
+  padding: 20px 12px;
+}
+html.mode-mobile .prologue-title,
+html.mode-mobile .ending-title {
+  font-size: 28px;
+  letter-spacing: 6px;
+}
+html.mode-mobile .prologue-text,
+html.mode-mobile .ending-text {
+  font-size: 13px;
+  max-width: 100%;
+  padding: 0 8px;
+}
+html.mode-mobile .prologue-start-btn {
+  padding: 10px 28px;
+  font-size: 15px;
+}
+
+/* ---- 手机端模态框：紧凑化 ---- */
+html.mode-mobile .game-modal {
+  width: 92vw;
+  max-width: 92vw;
+  max-height: 80vh;
+}
+html.mode-mobile .game-modal-body {
+  font-size: 13px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+html.mode-mobile .game-modal-btn {
+  padding: 10px 16px;
+  font-size: 14px;
+  min-height: 40px;
+}
+
+/* ---- 手机端：禁用拖拽（窗口已全屏化） ---- */
+html.mode-mobile .window-title {
+  cursor: default;
+}
+html.mode-mobile .window-title:active {
+  cursor: default;
+}
+
+/* ---- 手机端：图标选中时的高亮更明显 ---- */
+html.mode-mobile .desktop-folder.selected {
+  background: rgba(100,180,255,0.25);
+  border-radius: 4px;
+  outline: 2px solid rgba(150,200,255,0.6);
+}
+
+/* ---- 触屏平板端：保留双击，但增大点击区域 ---- */
+html.mode-touch .desktop-folder {
+  padding: 6px 4px;
+}
+html.mode-touch .folder-icon {
+  width: 44px; height: 44px;
+}
+
+/* ========================================================================== */
+/*                屏幕旋转 / 超窄屏幕紧急适配                                  */
+/* ========================================================================== */
+@media screen and (max-width: 380px) {
+  html.mode-mobile .desktop-folder {
+    width: 64px;
+    margin: 2px;
+  }
+  html.mode-mobile .folder-icon {
+    width: 40px; height: 40px;
+  }
+  html.mode-mobile .desktop-folder > div:last-child {
+    font-size: 10px;
+  }
+}
+
+/* 横屏时窗口高度限制 */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  html.mode-mobile .window {
+    height: 100vh !important;
+    max-height: 100vh !important;
+  }
+  html.mode-mobile .start-menu-list {
+    max-height: 50vh;
+  }
+}
+
+/* ---- 防止 iOS Safari 地址栏遮挡 ---- */
+html.mode-mobile body {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}
+html.mode-mobile #desktop {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+}

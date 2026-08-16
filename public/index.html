@@ -2,6 +2,10 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1a3a">
 <title>白昼失踪</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -40,125 +44,125 @@
 <!-- 桌面 -->
 <div id="desktop">
   <!-- 公共基础软件（所有账户都有） -->
-  <div class="desktop-folder user-common" style="top: 30px; left: 30px; display:none;" ondblclick="openWindow('thispc-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-common" style="top: 30px; left: 30px; display:none;" data-open="openWindow('thispc-window')">
     <div class="folder-icon icon-thispc" id="icon-thispc"></div>
     <div>此电脑</div>
   </div>
-  <div class="desktop-folder user-common" style="top: 30px; left: 120px; display:none;" ondblclick="openWindow('recyclebin-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-common" style="top: 30px; left: 120px; display:none;" data-open="openWindow('recyclebin-window')">
     <div class="folder-icon icon-recycle" id="icon-recycle"></div>
     <div>回收站</div>
   </div>
-  <div class="desktop-folder user-common" style="top: 30px; left: 210px; display:none;" ondblclick="openWindow('browser-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-common" style="top: 30px; left: 210px; display:none;" data-open="openWindow('browser-window')">
     <div class="folder-icon icon-browser"></div>
     <div>浏览器</div>
   </div>
-  <div class="desktop-folder user-common" style="top: 120px; left: 30px; display:none;" ondblclick="openWindow('clock-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-common" style="top: 120px; left: 30px; display:none;" data-open="openWindow('clock-window')">
     <div class="folder-icon icon-clock"></div>
     <div>控制面板</div>
   </div>
   <!-- 学生/导员才用QQ聊天（校长和导师不显示） -->
-  <div class="desktop-folder user-qq" style="top: 120px; left: 120px; display:none;" ondblclick="openWindow('qq-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-qq" style="top: 120px; left: 120px; display:none;" data-open="openWindow('qq-window')">
     <div class="folder-icon icon-qq"></div>
     <div>QQ</div>
   </div>
   <!-- 许妍/导员专用：启明内网通（低权限版本，无法访问核心机密通道）——保留QQ -->
-  <div class="desktop-folder user-entim-low user-only-xuyan" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-entim-low user-only-xuyan" style="top: 210px; left: 120px; display:none;" data-open="openWindow('im-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%23405577%22 stroke=%22%231d2b44%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%23a7b7d1%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22%23f88%22>低</text></svg>');"></div>
     <div>启明专线(只读)</div>
   </div>
-  <div class="desktop-folder user-entim-low user-only-teacher" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-entim-low user-only-teacher" style="top: 210px; left: 120px; display:none;" data-open="openWindow('im-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%23405577%22 stroke=%22%231d2b44%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%23a7b7d1%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23d0dbef%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22%23f88%22>低</text></svg>');"></div>
     <div>启明专线(只读)</div>
   </div>
 
   <!-- 我：高三学生 -->
-  <div class="desktop-folder user-only-me" style="top: 210px; left: 30px; display:none;" ondblclick="openWindow('diary-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-me" style="top: 210px; left: 30px; display:none;" data-open="openWindow('diary-window')">
     <div class="folder-icon icon-diary"></div>
     <div>日记</div>
   </div>
-  <div class="desktop-folder user-only-me" style="top: 210px; left: 210px; display:none;" ondblclick="alert('文件夹为空，或已损坏。')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-me" style="top: 210px; left: 210px; display:none;" data-open="alert('文件夹为空，或已损坏。')">
     <div class="folder-icon icon-folder"></div>
     <div>旧照片</div>
   </div>
-  <div class="desktop-folder user-only-me" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('notes-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-me" style="top: 300px; left: 30px; display:none;" data-open="openWindow('notes-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M6 8 L6 42 L42 42 L42 16 L24 16 L20 8 Z%22 fill=%22%23f0f0a0%22 stroke=%22%23a08020%22 stroke-width=%222%22/></svg>');"></div>
     <div>调查笔记</div>
   </div>
 
   <!-- 许妍：高三学生 / 失踪者 -->
-  <div class="desktop-folder user-only-xuyan" style="top: 210px; left: 30px; display:none;" ondblclick="openWindow('diary-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-xuyan" style="top: 210px; left: 30px; display:none;" data-open="openWindow('diary-window')">
     <div class="folder-icon icon-diary"></div>
     <div>日记</div>
   </div>
-  <div class="desktop-folder user-only-xuyan" style="top: 210px; left: 210px; display:none;" ondblclick="openUserFile('xuyan_secret')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-xuyan" style="top: 210px; left: 210px; display:none;" data-open="openUserFile('xuyan_secret')">
     <div class="folder-icon icon-diary" style="filter:hue-rotate(300deg);"></div>
     <div>加密日记</div>
   </div>
-  <div class="desktop-folder user-only-xuyan" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('b317form-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-xuyan" style="top: 300px; left: 30px; display:none;" data-open="openWindow('b317form-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%228%22 width=%2236%22 height=%2232%22 rx=%222%22 fill=%22%23fff%22 stroke=%22%23304050%22 stroke-width=%222%22/><path d=%22M12 18 L36 18 M12 26 L36 26 M12 34 L24 34%22 stroke=%22%23607080%22 stroke-width=%221%22/></svg>');"></div>
     <div>B-317申请单</div>
   </div>
 
   <!-- A03档案（来自回收站，仅校长在"还原"之后才会出现在桌面上） -->
-  <div class="desktop-folder user-only-principal" id="a03-restored" style="top: 300px; left: 210px; display:none;" ondblclick="openUserFile('a03_archive')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-principal" id="a03-restored" style="top: 300px; left: 210px; display:none;" data-open="openUserFile('a03_archive')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M6 10 L6 42 L42 42 L42 18 L24 18 L20 10 Z%22 fill=%22%23e8d090%22 stroke=%22%23704810%22 stroke-width=%222%22/><rect x=%2212%22 y=%2224%22 width=%2224%22 height=%2212%22 fill=%22%23fff5d6%22 stroke=%22%23a08030%22 stroke-width=%221%22/><text x=%2224%22 y=%2233%22 font-size=%2210%22 text-anchor=%22middle%22 fill=%22%23a02020%22 font-weight=%22bold%22>机密 A03</text></svg>');"></div>
     <div style="color:#b03030;font-weight:bold">A03档案⚠已还原</div>
   </div>
 
   <!-- 张志强：导员 -->
-  <div class="desktop-folder user-only-teacher" style="top: 120px; left: 210px; display:none;" ondblclick="openWindow('lms-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-teacher" style="top: 120px; left: 210px; display:none;" data-open="openWindow('lms-window')">
     <div class="folder-icon icon-browser" style="filter:hue-rotate(120deg);"></div>
     <div>学习管理系统</div>
   </div>
-  <div class="desktop-folder user-only-teacher" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('mail-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-teacher" style="top: 300px; left: 30px; display:none;" data-open="openWindow('mail-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%2212%22 width=%2236%22 height=%2226%22 rx=%222%22 fill=%22%23e0ecfa%22 stroke=%22%232a4870%22 stroke-width=%222%22/><path d=%22M6 14 L24 26 L42 14%22 fill=%22none%22 stroke=%22%232a4870%22 stroke-width=%222%22/></svg>');"></div>
     <div>校内邮箱</div>
   </div>
-  <div class="desktop-folder user-only-teacher" style="top: 300px; left: 120px; display:none;" ondblclick="openWindow('exam-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-teacher" style="top: 300px; left: 120px; display:none;" data-open="openWindow('exam-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 fill=%22%23fff0e0%22 stroke=%22%23a06010%22 stroke-width=%222%22/><path d=%22M12 14 L36 14 M12 20 L36 20 M12 26 L30 26 M12 32 L26 32%22 stroke=%22%23a06010%22 stroke-width=%221%22/></svg>');"></div>
     <div>三模卷宗</div>
   </div>
 
   <!-- 陈国栋：校长 -->
-  <div class="desktop-folder user-entim user-only-principal" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-entim user-only-principal" style="top: 210px; left: 120px; display:none;" data-open="openWindow('im-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%231a3d6e%22 stroke=%22%230c2244%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%236fb0ff%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23c0dcff%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23c0dcff%22/><circle cx=%2236%22 cy=%2236%22 r=%225%22 fill=%22%23d04040%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22white%22>!</text></svg>');"></div>
     <div>启明内网通</div>
   </div>
-  <div class="desktop-folder user-only-principal" style="top: 120px; left: 210px; display:none;" ondblclick="openUserFile('principal_cover')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-principal" style="top: 120px; left: 210px; display:none;" data-open="openUserFile('principal_cover')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M4 12 L4 40 L44 40 L44 16 L22 16 L18 12 Z%22 fill=%22%23a04040%22 stroke=%22%23701010%22 stroke-width=%222%22/></svg>');"></div>
     <div>校长密函</div>
   </div>
-  <div class="desktop-folder user-only-principal" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('schooladmin-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-principal" style="top: 300px; left: 30px; display:none;" data-open="openWindow('schooladmin-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%228%22 y=%228%22 width=%2232%22 height=%2232%22 fill=%22%23c08030%22 stroke=%22%23704010%22 stroke-width=%222%22/><circle cx=%2224%22 cy=%2220%22 r=%224%22 fill=%22%23fff%22 stroke=%22%23704010%22/><path d=%22M14 36 L24 26 L34 36%22 fill=%22none%22 stroke=%22%23fff%22 stroke-width=%222%22/></svg>');"></div>
     <div>校务管理</div>
   </div>
-  <div class="desktop-folder user-only-principal" style="top: 300px; left: 120px; display:none;" ondblclick="openWindow('mail-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-principal" style="top: 300px; left: 120px; display:none;" data-open="openWindow('mail-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%2212%22 width=%2236%22 height=%2226%22 rx=%222%22 fill=%22%23ffe0e0%22 stroke=%22%23a02020%22 stroke-width=%222%22/><path d=%22M6 14 L24 26 L42 14%22 fill=%22none%22 stroke=%22%23a02020%22 stroke-width=%222%22/></svg>');"></div>
     <div>校长邮箱</div>
   </div>
-  <div class="desktop-folder user-only-principal" style="top: 300px; left: 300px; display:none;" ondblclick="openWindow('accesscontrol-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-principal" style="top: 300px; left: 300px; display:none;" data-open="openWindow('accesscontrol-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%2214%22 y=%228%22 width=%2220%22 height=%2232%22 rx=%222%22 fill=%22%23506070%22 stroke=%22%23203040%22 stroke-width=%222%22/><circle cx=%2230%22 cy=%2228%22 r=%222%22 fill=%22%23a0e0ff%22/><path d=%22M8 14 L14 14 M8 22 L14 22 M8 30 L14 30%22 stroke=%22%23203040%22 stroke-width=%222%22/></svg>');"></div>
     <div>门禁总控</div>
   </div>
 
   <!-- 秦明辉：导师/CEO -->
-  <div class="desktop-folder user-entim user-only-mentor" style="top: 210px; left: 120px; display:none;" ondblclick="openWindow('im-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-entim user-only-mentor" style="top: 210px; left: 120px; display:none;" data-open="openWindow('im-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%226%22 width=%2236%22 height=%2236%22 rx=%226%22 fill=%22%232b1a5e%22 stroke=%22%2314083a%22 stroke-width=%222%22/><rect x=%2212%22 y=%2214%22 width=%2224%22 height=%224%22 rx=%221%22 fill=%22%23a790ff%22/><rect x=%2212%22 y=%2222%22 width=%2218%22 height=%223%22 rx=%221%22 fill=%22%23d5c7ff%22/><rect x=%2212%22 y=%2228%22 width=%2222%22 height=%223%22 rx=%221%22 fill=%22%23d5c7ff%22/><circle cx=%2236%22 cy=%2236%22 r=%225%22 fill=%22%23d04040%22/><text x=%2236%22 y=%2240%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22white%22>!</text></svg>');"></div>
     <div>启明内网通</div>
   </div>
-  <div class="desktop-folder user-only-mentor" style="top: 120px; left: 210px; display:none;" ondblclick="openUserFile('mentor_log')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-mentor" style="top: 120px; left: 210px; display:none;" data-open="openUserFile('mentor_log')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M4 12 L4 40 L44 40 L44 16 L22 16 L18 12 Z%22 fill=%22%23604090%22 stroke=%22%23301050%22 stroke-width=%222%22/></svg>');"></div>
     <div>实验日志</div>
   </div>
-  <div class="desktop-folder user-only-mentor" style="top: 300px; left: 30px; display:none;" ondblclick="openWindow('qx18console-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-mentor" style="top: 300px; left: 30px; display:none;" data-open="openWindow('qx18console-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%224%22 y=%228%22 width=%2240%22 height=%2232%22 rx=%223%22 fill=%22%23102030%22 stroke=%22%234080a0%22 stroke-width=%222%22/><circle cx=%2224%22 cy=%2224%22 r=%226%22 fill=%22none%22 stroke=%22%2360e0ff%22 stroke-width=%222%22/><circle cx=%2224%22 cy=%2224%22 r=%222%22 fill=%22%2360e0ff%22/><path d=%22M8 14 L14 14 M34 14 L40 14 M8 34 L14 34 M34 34 L40 34%22 stroke=%22%2360e0ff%22 stroke-width=%221%22/></svg>');"></div>
     <div>QX18控制台</div>
   </div>
-  <div class="desktop-folder user-only-mentor" style="top: 300px; left: 120px; display:none;" ondblclick="openWindow('mail-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-mentor" style="top: 300px; left: 120px; display:none;" data-open="openWindow('mail-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%226%22 y=%2212%22 width=%2236%22 height=%2226%22 rx=%222%22 fill=%22%23e8e0fa%22 stroke=%22%236040a0%22 stroke-width=%222%22/><path d=%22M6 14 L24 26 L42 14%22 fill=%22none%22 stroke=%22%236040a0%22 stroke-width=%222%22/></svg>');"></div>
     <div>企业邮箱</div>
   </div>
-  <div class="desktop-folder user-only-mentor" style="top: 210px; left: 30px; display:none;" ondblclick="openWindow('dataview-window')" onclick="selectIcon(this)">
+  <div class="desktop-folder user-only-mentor" style="top: 210px; left: 30px; display:none;" data-open="openWindow('dataview-window')">
     <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><rect x=%224%22 y=%2210%22 width=%2240%22 height=%2228%22 fill=%22%23fff%22 stroke=%22%232a4870%22 stroke-width=%222%22/><rect x=%2210%22 y=%2232%22 width=%224%22 height=%226%22 fill=%22%234080a0%22/><rect x=%2218%22 y=%2226%22 width=%224%22 height=%2212%22 fill=%22%234080a0%22/><rect x=%2226%22 y=%2220%22 width=%224%22 height=%2218%22 fill=%22%234080a0%22/><rect x=%2234%22 y=%2216%22 width=%224%22 height=%2222%22 fill=%22%23a04040%22/></svg>');"></div>
     <div>数据分析</div>
   </div>
