@@ -101,10 +101,6 @@
     <div class="folder-icon icon-folder"></div>
     <div>旧照片</div>
   </div>
-  <div class="desktop-folder user-only-me" style="top: 300px; left: 30px; display:none;" data-open="openWindow('notes-window')">
-    <div class="folder-icon icon-folder" style="background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 48 48%22><path d=%22M6 8 L6 42 L42 42 L42 16 L24 16 L20 8 Z%22 fill=%22%23f0f0a0%22 stroke=%22%23a08020%22 stroke-width=%222%22/></svg>');"></div>
-    <div>调查笔记</div>
-  </div>
 
   <!-- 许妍：高三学生 / 失踪者 -->
   <div class="desktop-folder user-only-xuyan" style="top: 210px; left: 30px; display:none;" data-open="openWindow('diary-window')">
@@ -197,9 +193,6 @@
       <div class="sm-item sm-me sm-xuyan sm-teacher" onclick="openWindow('qq-window'); closeStartMenu()">
         <span class="icon">💬</span> QQ聊天
       </div>
-      <div class="sm-item sm-me" onclick="openWindow('notes-window'); closeStartMenu()">
-        <span class="icon">📝</span> 调查笔记
-      </div>
       <div class="sm-item sm-xuyan" onclick="openUserFile('xuyan_secret'); closeStartMenu()">
         <span class="icon">🔒</span> 加密日记
       </div>
@@ -277,7 +270,6 @@
     <div class="task-item" id="taskbtn-clock" onclick="focusWindow('clock-window')">⏰ 控制面板</div>
     <div class="task-item" id="taskbtn-file" onclick="focusWindow('file-viewer-window')">📄 文档</div>
     <div class="task-item" id="taskbtn-lms" onclick="focusWindow('lms-window')">📚 学习系统</div>
-    <div class="task-item" id="taskbtn-notes" onclick="focusWindow('notes-window')">📝 调查笔记</div>
     <div class="task-item" id="taskbtn-b317" onclick="focusWindow('b317form-window')">📋 B-317申请单</div>
     <div class="task-item" id="taskbtn-mail" onclick="focusWindow('mail-window')">📧 邮件</div>
     <div class="task-item" id="taskbtn-exam" onclick="focusWindow('exam-window')">📋 三模卷宗</div>
@@ -385,18 +377,6 @@
 </div>
 
 <!-- 学习管理系统（导员专属） -->
-<div class="window" id="notes-window">
-  <div class="window-title" onmousedown="startDrag(event, 'notes-window')">
-    <div class="window-title-text">📝 调查笔记</div>
-    <div class="window-controls">
-      <button onclick="minimizeWindow('notes-window')">_</button>
-      <button>▢</button>
-      <button class="close" onclick="closeWindow('notes-window')">✕</button>
-    </div>
-  </div>
-  <div class="window-body" style="padding:0;"><div id="notes-root"></div></div>
-</div>
-
 <div class="window" id="b317form-window">
   <div class="window-title" onmousedown="startDrag(event, 'b317form-window')">
     <div class="window-title-text">📋 B-317实验室 · 实验申请单</div>

@@ -2045,24 +2045,9 @@ table.data-table tr.odd { background: #fafafa; }
 }
 
 /* ========== 通用软件窗口大小 ========== */
-#notes-window, #b317form-window, #mail-window, #exam-window, #schooladmin-window, #accesscontrol-window, #qx18console-window, #dataview-window {
+#b317form-window, #mail-window, #exam-window, #schooladmin-window, #accesscontrol-window, #qx18console-window, #dataview-window {
   width: 680px; height: 520px; top: 60px; left: 180px;
 }
-
-/* ========== 调查笔记 ========== */
-.notes-app { height:100%; display:flex; }
-.notes-sidebar { width:180px; background:#fff8dc; border-right:1px solid #c8b070; padding:10px 0; font-size:13px; overflow-y:auto; }
-.notes-sidebar h5 { padding:4px 12px; color:#806020; margin:0 0 6px; font-size:12px; }
-.notes-list-item { padding:8px 14px; cursor:pointer; color:#604010; border-left:3px solid transparent; }
-.notes-list-item:hover { background:#f5e8b0; }
-.notes-list-item.active { background:#fff; border-left-color:#a06010; font-weight:bold; }
-.notes-body { flex:1; background:#fffaf0; padding:18px 22px; overflow-y:auto; font-size:13px; line-height:1.8; color:#302010; }
-.notes-body h4 { color:#804010; margin:0 0 12px; padding-bottom:8px; border-bottom:1px dashed #c09060; }
-.notes-body .check-list { list-style:none; padding:0; }
-.notes-body .check-list li { padding:4px 0; }
-.notes-body .check-list li::before { content:'☐ '; color:#806040; }
-.notes-body .check-list li.done::before { content:'☑ '; color:#2a6020; }
-.notes-body .check-list li.done { color:#2a6020; text-decoration:line-through; }
 
 /* ========== B-317申请单 ========== */
 .b317-form {

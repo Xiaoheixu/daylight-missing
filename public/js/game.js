@@ -1165,7 +1165,6 @@ function openWindow(id){
   if(id === 'lms-window'){
     renderLMS();
   }
-  if(id === 'notes-window'){ renderNotes(); }
   if(id === 'b317form-window'){ renderB317Form(); }
   if(id === 'mail-window'){ renderMail(); }
   if(id === 'exam-window'){ renderExam(); }
@@ -3045,89 +3044,6 @@ function renderStartMenuPersonalized(){
     }
     it.style.display = show ? 'flex' : 'none';
   });
-}
-
-// ================== 调查笔记（高三学生·我） ==================
-let notesCurrent = 'today';
-const NOTES = {
-  today: {
-    title: '今日待办 · 2026.08.15',
-    html: `
-      <h4>📌 八年后的今天 · 调查日记第1天</h4>
-      <p>许妍失踪已经整整八年。今天我再次打开她的电脑，决心把真相找出来。</p>
-      <h5 style="color:#804010; margin-top:16px;">🔎 我的待办清单：</h5>
-      <ul class="check-list">
-        <li class="done">翻完她的日记（共6篇），找到所有日期和地点线索</li>
-        <li>查看所有QQ聊天记录（尤其是6月2日那次）</li>
-        <li>把控制面板日期调到2026年8月15日，解锁日记隐藏内容</li>
-        <li>破解导员张志强电脑登录密码，看学习系统里的学籍归档痕迹</li>
-        <li>进入校园内网查看门禁日志和聊天记录</li>
-        <li>从学校官网和企业官网提取校长/导师的生日和密码格式</li>
-        <li>登录陈国栋校长账户，看他的办公室门禁总控和校长邮箱</li>
-        <li>登录秦明辉导师账户，打开QX18控制台看实验数据</li>
-        <li>在时间线工具上，按照"实际时间-系统时间=7分钟"拼出正确顺序</li>
-      </ul>
-      <p style="margin-top:18px; color:#804010; font-style:italic;">"人会忘，但数据不会"</p>`
-  },
-  passwords: {
-    title: '🧩 密码线索整理',
-    html: `
-      <h4>整理的所有密码格式</h4>
-      <table style="width:100%; font-size:12px; border-collapse:collapse;">
-        <tr style="background:#f0e0a0;"><th style="border:1px solid #a08040; padding:6px;">账户</th><th style="border:1px solid #a08040; padding:6px;">规律</th><th style="border:1px solid #a08040; padding:6px;">数值在哪里找</th></tr>
-        <tr><td style="border:1px solid #a08040; padding:6px;">许妍 xuyan</td><td style="border:1px solid #a08040; padding:6px;">用户名_地点缩写_日期</td><td style="border:1px solid #a08040; padding:6px;">日记里有B-317、0614</td></tr>
-        <tr><td style="border:1px solid #a08040; padding:6px;">张导员 teacher</td><td style="border:1px solid #a08040; padding:6px;">ZhangZQ_2010_DCYZ</td><td style="border:1px solid #a08040; padding:6px;">学校官网-师资队伍</td></tr>
-        <tr><td style="border:1px solid #a08040; padding:6px;">陈校长 principal</td><td style="border:1px solid #a08040; padding:6px;">姓氏大写_生日8位_学校缩写</td><td style="border:1px solid #a08040; padding:6px;">学校简介（校长致辞）</td></tr>
-        <tr><td style="border:1px solid #a08040; padding:6px;">秦导师 mentor</td><td style="border:1px solid #a08040; padding:6px;">签名缩写_项目代号_出生年</td><td style="border:1px solid #a08040; padding:6px;">企业官网-关于我们</td></tr>
-      </table>
-      <p style="margin-top:14px; color:#804010;">※ 另外企业内部文档访问密码是 "启明星代号_18" —— 从 QQ6月2日导员聊天里找</p>`
-  },
-  timeline: {
-    title: '⏱️ 时间线分析',
-    html: `
-      <h4>许妍失踪当天的7分钟偏移</h4>
-      <p>许妍的实验编号是 <b>QX18-A03</b>，她的实验编号里有个3，也许和时间偏移有关？</p>
-      <h5 style="color:#804010;">目前我手上的时间点：</h5>
-      <ul style="line-height:2; padding-left:18px;">
-        <li><b>18:41</b>（QQ上的原始消息时间） —— "我去B楼一趟"</li>
-        <li><b>19:03</b>（门禁记录） —— 实际应该是 18:56</li>
-        <li><b>19:11</b>（日志保存） —— 实际应该是 19:04</li>
-        <li><b>19:18</b>（系统时间显示的"最后一次心跳"） —— 实际 19:11</li>
-        <li><b>20:13</b>（我发现她失踪） —— 这个时间是对的</li>
-      </ul>
-      <p style="color:#c00;">⚠ 日记第三页那道"时间序列题"里写了一串数字：<b>18:56 19:03 19:11</b>，等我在学习系统里看到她三模压轴题就能确认</p>`
-  },
-  contacts: {
-    title: '📇 人物关系',
-    html: `
-      <h4>我目前找到的关键人物</h4>
-      <ul style="line-height:2; padding-left:18px;">
-        <li><b>许妍</b>：我的好朋友，高三(3)班 · QX18-A03 · 2018/06/14失踪</li>
-        <li><b>张志强（导员）</b>：高三(2)班班主任助理，密码是他在QQ里亲口爆的料</li>
-        <li><b>陈国栋（校长）</b>：下令删除许妍档案的人，背后是启明教育</li>
-        <li><b>秦明辉（导师）</b>：QX18项目发起者，许妍的实验是他在带</li>
-        <li><b>夏洁（小夏）</b>：我同桌，第二天一早就忘了许妍是谁</li>
-        <li><b>413室友</b>：宿舍群里的同学，当场就没了印象</li>
-      </ul>`
-  }
-};
-function renderNotes(){
-  const root = document.getElementById('notes-root');
-  if(!root) return;
-  root.innerHTML = `
-    <div class="notes-app">
-      <div class="notes-sidebar">
-        <h5>📋 笔记分类</h5>
-        ${Object.keys(NOTES).map(k => `
-          <div class="notes-list-item ${k===notesCurrent?'active':''}" onclick="switchNote('${k}')">${k==='today'?'📅 今日待办':k==='passwords'?'🔑 密码线索':k==='timeline'?'⏱️ 时间线':'👥 人物关系'}</div>
-        `).join('')}
-      </div>
-      <div class="notes-body" id="notes-body">${NOTES[notesCurrent].html}</div>
-    </div>`;
-}
-function switchNote(k){
-  notesCurrent = k;
-  renderNotes();
 }
 
 // ================== B-317实验申请单（许妍） ==================
