@@ -22,6 +22,16 @@
   <div class="prologue-text" id="prologue-text"></div>
   <button class="prologue-start-btn" id="prologue-start-btn" onclick="startGame()">开 始 调 查</button>
   <div class="prologue-hint" id="prologue-hint"></div>
+  <div class="prologue-stats" id="prologue-stats">
+    <span class="stat-online" title="当前正在游玩的玩家数">
+      <span class="stat-dot"></span>
+      在线 <strong id="stat-online">-</strong>
+    </span>
+    <span class="stat-divider">·</span>
+    <span class="stat-total" title="游戏上线至今累计访问人次">
+      累计访问 <strong id="stat-total">-</strong>
+    </span>
+  </div>
 </div>
 
 <!-- 锁屏/多用户登录界面 -->
@@ -37,7 +47,14 @@
     <input class="lock-password-input" id="lock-password" type="password" placeholder="输入密码（我 不需要密码）" onkeydown="if(event.key==='Enter') tryLogin()">
     <button class="lock-login-btn" onclick="tryLogin()">登录</button>
   </div>
+  <label class="lock-remember" title="勾选后此账号下次免输密码">
+    <input type="checkbox" id="lock-remember" checked> 记住此账号密码（下次免输）
+  </label>
   <div class="lock-err" id="lock-err"></div>
+  <div class="lock-saved-accounts" id="lock-saved-accounts" style="display:none;">
+    <div class="lock-saved-title">已保存密码的账号（点击直接登录）</div>
+    <div class="lock-saved-list" id="lock-saved-list"></div>
+  </div>
   <div class="lock-switch-back" onclick="backToDesktop()">← 返回桌面</div>
 </div>
 

@@ -2631,3 +2631,187 @@ html.mode-mobile #desktop {
   min-height: 100vh;
   min-height: -webkit-fill-available;
 }
+
+/* ========================================================================== */
+/*           前言页 · 在线人数 / 累计访问 显示                                  */
+/* ========================================================================== */
+.prologue-stats {
+  margin-top: 28px;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: rgba(220, 230, 255, 0.7);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  opacity: 0;
+  animation: fadeInStats 1.2s ease-out 0.5s forwards;
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+@keyframes fadeInStats {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.prologue-stats strong {
+  color: #6fc0ff;
+  font-weight: 600;
+  margin: 0 4px;
+  font-variant-numeric: tabular-nums;
+}
+.prologue-stats .stat-online {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.prologue-stats .stat-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 6px #4ade80;
+  animation: pulseOnline 1.5s ease-in-out infinite;
+}
+@keyframes pulseOnline {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.85); }
+}
+.prologue-stats .stat-divider {
+  color: rgba(220, 230, 255, 0.3);
+}
+.prologue-stats .stat-total strong {
+  color: #c0c8e0;
+}
+
+/* 移动端前言统计样式 */
+html.mode-mobile .prologue-stats {
+  font-size: 11px;
+  margin-top: 20px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ========================================================================== */
+/*           锁屏 · 记住密码 + 快速登录区                                       */
+/* ========================================================================== */
+.lock-remember {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  user-select: none;
+}
+.lock-remember input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #4a8aff;
+  cursor: pointer;
+}
+
+.lock-saved-accounts {
+  margin: 12px auto 8px;
+  max-width: 420px;
+  width: 90%;
+  background: rgba(40, 60, 110, 0.4);
+  border: 1px solid rgba(100, 150, 220, 0.35);
+  border-radius: 6px;
+  padding: 10px;
+}
+.lock-saved-title {
+  font-size: 11px;
+  color: rgba(200, 220, 255, 0.7);
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.lock-saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lock-saved-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: rgba(60, 90, 150, 0.35);
+  border: 1px solid rgba(120, 170, 230, 0.25);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  position: relative;
+}
+.lock-saved-item:hover {
+  background: rgba(80, 120, 200, 0.5);
+  border-color: rgba(150, 200, 255, 0.6);
+  transform: translateX(2px);
+}
+.lock-saved-item:active {
+  transform: translateX(2px) scale(0.99);
+}
+.lock-saved-item .lock-user-avatar {
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.lock-saved-info {
+  flex: 1;
+  min-width: 0;
+}
+.lock-saved-name {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 500;
+}
+.lock-saved-role {
+  font-size: 11px;
+  color: rgba(200, 220, 255, 0.65);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lock-saved-badge {
+  font-size: 10px;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.lock-saved-forget {
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: rgba(255, 80, 80, 0.25);
+  color: #ff8080;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+}
+.lock-saved-forget:hover {
+  background: rgba(255, 80, 80, 0.5);
+  color: #fff;
+  transform: rotate(90deg);
+}
+
+/* 移动端锁屏快速登录样式 */
+html.mode-mobile .lock-saved-accounts {
+  max-width: 100%;
+  width: 100%;
+}
+html.mode-mobile .lock-saved-item .lock-user-avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 12px;
+}

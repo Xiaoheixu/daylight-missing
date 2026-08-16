@@ -2,8 +2,41 @@ const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ============ 全局统计：在线人数 + 总访问人数 ============
+// 在线人数（基于活跃会话）
+const onlineSessions = new Map(); // sid -> lastActiveTime
+const ONLINE_TIMEOUT = 5 * 60 * 1000; // 5分钟无活动视为离线
+
+// 总访问人数（持久化到 visits.json）
+const VISITS_FILE = path.join(__dirname, 'visits.json');
+let totalVisits = 0;
+try {
+  if (fs.existsSync(VISITS_FILE)) {
+    const data = JSON.parse(fs.readFileSync(VISITS_FILE, 'utf8'));
+    totalVisits = data.totalVisits || 0;
+  }
+} catch (e) {
+  console.warn('读取 visits.json 失败，将使用 0:', e.message);
+}
+function persistVisits() {
+  try {
+    fs.writeFileSync(VISITS_FILE, JSON.stringify({ totalVisits }, null, 2));
+  } catch (e) {
+    console.warn('写入 visits.json 失败:', e.message);
+  }
+}
+
+// 定时清理过期会话
+setInterval(() => {
+  const now = Date.now();
+  for (const [sid, t] of onlineSessions) {
+    if (now - t > ONLINE_TIMEOUT) onlineSessions.delete(sid);
+  }
+}, 60 * 1000);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -29,8 +62,28 @@ app.use((req, res, next) => {
       timelineReconstructed: false,
       endingReached: false
     };
+    // 新会话：总访问人数 +1
+    totalVisits++;
+    persistVisits();
+  }
+  // 活跃会话标记（用于在线人数统计）
+  if (req.session.id) {
+    onlineSessions.set(req.session.id, Date.now());
   }
   next();
+});
+
+// ============ 在线人数 / 总访问人数 API ============
+app.get('/api/stats', (req, res) => {
+  // 实时清理过期会话
+  const now = Date.now();
+  for (const [sid, t] of onlineSessions) {
+    if (now - t > ONLINE_TIMEOUT) onlineSessions.delete(sid);
+  }
+  res.json({
+    online: onlineSessions.size,
+    totalVisits: totalVisits
+  });
 });
 
 // ============ 游戏状态 API ============

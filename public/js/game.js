@@ -401,6 +401,12 @@ function showPrologue(){
     if(idx >= prologueLines.length){
       document.getElementById('prologue-start-btn').classList.add('show');
       document.getElementById('prologue-hint').textContent = '[ 线索将在你探索的过程中逐渐浮现 · 没有提示 · 没有捷径 ]';
+      // 前言打字完成后，立即获取并显示在线人数和总访问人数
+      fetchAndRenderStats();
+      // 启动定时刷新（每60秒一次），保持在线人数实时更新
+      if(!window._statsTimer){
+        window._statsTimer = setInterval(fetchAndRenderStats, 60000);
+      }
       return;
     }
     const line = prologueLines[idx];
@@ -596,14 +602,106 @@ function renderLockUserList(){
 function selectLockUser(k){
   lockSelectedUser = k;
   renderLockUserList();
-  document.getElementById('lock-password').value = '';
   document.getElementById('lock-err').textContent = '';
-  if(USERS[k].password === ''){
-    document.getElementById('lock-password').disabled = true;
+  // 如果该账号已保存密码，自动填充并勾选记住
+  const saved = getSavedAccounts();
+  const hasSaved = saved[k] !== undefined;
+  const pwInput = document.getElementById('lock-password');
+  if(hasSaved){
+    pwInput.value = saved[k];
+    document.getElementById('lock-remember').checked = true;
   } else {
-    document.getElementById('lock-password').disabled = false;
-    setTimeout(() => document.getElementById('lock-password').focus(), 50);
+    pwInput.value = '';
+    document.getElementById('lock-remember').checked = true;
   }
+  if(USERS[k].password === ''){
+    pwInput.disabled = true;
+    // 无密码账户直接给提示
+    pwInput.placeholder = `点击登录即可（${USERS[k].name} 无密码）`;
+  } else {
+    pwInput.disabled = false;
+    setTimeout(() => pwInput.focus(), 50);
+  }
+}
+
+// ============ 已保存密码管理（localStorage 持久化） ============
+const SAVED_ACCOUNTS_KEY = 'bm_saved_accounts';
+function getSavedAccounts(){
+  try {
+    return JSON.parse(localStorage.getItem(SAVED_ACCOUNTS_KEY) || '{}');
+  } catch(e){ return {}; }
+}
+function saveAccountPassword(userKey, password){
+  const all = getSavedAccounts();
+  if(!password){
+    delete all[userKey];
+  } else {
+    all[userKey] = password;
+  }
+  localStorage.setItem(SAVED_ACCOUNTS_KEY, JSON.stringify(all));
+}
+function clearSavedAccounts(){
+  localStorage.removeItem(SAVED_ACCOUNTS_KEY);
+}
+
+// 渲染已保存账号列表（快速登录区）
+function renderSavedAccountsList(){
+  const wrap = document.getElementById('lock-saved-accounts');
+  const list = document.getElementById('lock-saved-list');
+  if(!wrap || !list) return;
+  const saved = getSavedAccounts();
+  const keys = Object.keys(saved);
+  if(keys.length === 0){
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = 'block';
+  list.innerHTML = keys.map(k => {
+    const u = USERS[k] || { name: k, role:'', avatarClass:'', avatarText:'?' };
+    return `<div class="lock-saved-item" onclick="quickLoginSaved('${k}')">
+      <div class="lock-user-avatar ${u.avatarClass}">${u.avatarText}</div>
+      <div class="lock-saved-info">
+        <div class="lock-saved-name">${u.name}</div>
+        <div class="lock-saved-role">${u.role}</div>
+      </div>
+      <div class="lock-saved-badge" title="已保存密码">已记住</div>
+      <button class="lock-saved-forget" onclick="event.stopPropagation();forgetSavedAccount('${k}')" title="忘记此账号密码">×</button>
+    </div>`;
+  }).join('');
+}
+
+// 一键登录已保存的账号
+function quickLoginSaved(k){
+  const saved = getSavedAccounts();
+  if(saved[k] === undefined) return;
+  // 模拟选择+填密码+登录
+  lockSelectedUser = k;
+  renderLockUserList();
+  const pwInput = document.getElementById('lock-password');
+  pwInput.value = saved[k];
+  pwInput.disabled = (USERS[k].password === '');
+  document.getElementById('lock-err').textContent = '';
+  tryLogin();
+}
+
+// 忘记某个已保存账号
+function forgetSavedAccount(k){
+  const all = getSavedAccounts();
+  delete all[k];
+  localStorage.setItem(SAVED_ACCOUNTS_KEY, JSON.stringify(all));
+  renderSavedAccountsList();
+}
+
+// ============ 在线人数 / 总访问人数 显示 ============
+async function fetchAndRenderStats(){
+  try {
+    const r = await fetch('/api/stats');
+    const d = await r.json();
+    const onlineEl = document.getElementById('stat-online');
+    const totalEl = document.getElementById('stat-total');
+    if(onlineEl) onlineEl.textContent = d.online;
+    if(totalEl) totalEl.textContent = d.totalVisits;
+  } catch(e){ /* 静默失败，玩家看不到统计不影响游戏 */ }
 }
 
 function tryLogin(){
@@ -616,6 +714,14 @@ function tryLogin(){
   if(pw !== u.password){
     document.getElementById('lock-err').textContent = '密码错误。请仔细查找网站和文档中的线索...';
     return;
+  }
+  // 登录成功 —— 如果勾选"记住密码"且密码非空，保存到 localStorage
+  const remember = document.getElementById('lock-remember')?.checked;
+  if(remember && u.password){
+    saveAccountPassword(lockSelectedUser, u.password);
+  } else if(!remember){
+    // 取消勾选则移除已保存的密码
+    saveAccountPassword(lockSelectedUser, '');
   }
   // 登录成功 —— 切换用户前关闭所有已打开的窗口并重置任务栏
   const switchingToOther = lockSelectedUser !== currentUser;
@@ -657,6 +763,16 @@ function tryLogin(){
 function openLockScreen(){
   lockSelectedUser = currentUser;
   renderLockUserList();
+  // 显示已保存账号列表（一键登录）
+  renderSavedAccountsList();
+  // 如果当前用户已有保存密码，自动填入
+  if(lockSelectedUser){
+    const saved = getSavedAccounts();
+    if(saved[lockSelectedUser] !== undefined){
+      document.getElementById('lock-password').value = saved[lockSelectedUser];
+      document.getElementById('lock-remember').checked = true;
+    }
+  }
   // 锁屏时钟显示系统时间
   function updLockClock(){
     const el1 = document.getElementById('lock-time');
