@@ -650,7 +650,6 @@ table.data-table tr.odd { background: #fafafa; }
   border: 1px solid #888;
   border-radius: 16px;
   cursor: pointer;
-  font-family: "Consolas", monospace;
   font-size: 13px;
   color: #333;
   transition: all .15s;

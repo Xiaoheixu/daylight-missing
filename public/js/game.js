@@ -489,9 +489,9 @@ function applyClock(){
     timeCorrected = true;
     // 触发日记中隐藏内容的显示
     renderDiary(currentDiaryIdx);
-    showModal('时间已校准。\n\n一些之前被隐藏的内容现在可以看到了。\n\n去检查许妍的日记和其他地方...', '系统时间更新');
+    showModal('时间已校准。', '系统时间更新');
   } else {
-    note.innerHTML = '<span class="clock-hint-wrong">⚠ 时间已更改，但似乎还不正确...\n\n提示：日记上的日期是多少？</span>';
+    note.innerHTML = '<span class="clock-hint-wrong">⚠ 时间已更改，但似乎还不正确...</span>';
     timeCorrected = false;
     renderDiary(currentDiaryIdx);
   }
@@ -743,6 +743,11 @@ function tryLogin(){
   }
   document.getElementById('lock-err').textContent = '';
   document.getElementById('lock-screen').classList.remove('active');
+  // 记录已登录过的用户视角（隐藏结局条件之一：5视角全部登录）
+  try{
+    const logged = JSON.parse(localStorage.getItem('dcyz_logged_users') || '[]');
+    if(!logged.includes(currentUser)){ logged.push(currentUser); localStorage.setItem('dcyz_logged_users', JSON.stringify(logged)); }
+  }catch(e){}
   // 首次登录：显示任务栏、初始化用户UI和QQ联系人
   const firstLogin = !gameStarted;
   if(firstLogin){
@@ -753,9 +758,9 @@ function tryLogin(){
   }
   // 欢迎提示
   if(firstLogin){
-    // 首次登录不显示"切换成功"提示，直接进入桌面
+    // 首次登录的低调引导（不直接告诉玩家切换用户、不直接点名要去的网站）
     if(currentUser === 'me'){
-      showModal('欢迎回来。\n\n这台旧电脑已经很久没开过了……\n桌面上的图标就是你现在能做的事。\n\n（提示：点击左下角"开始"菜单可以切换用户，但你得先找到其他人的密码）', '登录成功');
+      showModal('欢迎回来。\n\n这台旧电脑已经很久没开过了……\n慢慢翻翻看，桌面上的东西应该能帮你想起什么。', '登录成功');
     } else {
       showModal(`欢迎，${USERS[currentUser].name}。\n\n你已经以 ${USERS[currentUser].role} 的身份登录。`, '登录成功');
     }
@@ -2395,21 +2400,21 @@ async function intraPage(p, aEl){
       <div style="font-size:13px; color:#666; margin-top:8px; margin-bottom:20px;">最后登录：2026/08/15 · 来自：旧电脑</div>
       <div class="notice-box">
         <b>📌 系统公告 [2026-08-12]</b><br>
-        近期部分学生档案数据异常。注意：系统日志时间轴为多源数据合并，<b>如发现时间偏差请使用"时间校准工具"。</b>
+        近期部分学生档案数据异常。如查阅到可疑记录，请按类别归档处理。
       </div>
       <div style="font-size:13px; line-height:2; color:#444;">
         <ul style="padding-left:24px;">
-          <li><b>门禁记录查询</b>：2018年6月14日的刷卡记录</li>
-          <li><b>学生档案</b>：学生基本信息查询</li>
-          <li><b>建筑平面图</b>：2017/2019存档对比</li>
-          <li><b>聊天记录存档</b>：四人关于许妍的证词（互相矛盾！）</li>
-          <li><b>系统时间校准工具</b>：多系统时间戳对比 → 时间线重构</li>
-          <li><b>项目文档区</b>：QX18_ 前缀文件（如 QX18_A03_SUB0617）</li>
+          <li><b>门禁记录查询</b></li>
+          <li><b>学生档案</b></li>
+          <li><b>建筑平面图</b></li>
+          <li><b>聊天记录存档</b></li>
+          <li><b>系统时间校准工具</b></li>
+          <li><b>项目文档区</b></li>
         </ul>
       </div>`;
   } else if(p === 'access'){
     el.innerHTML = `<h3 style="color:#1a3a60; margin-bottom:16px;">🚪 门禁记录查询 · 2018年6月14日</h3>
-      <div class="notice-box">数据来源：校园门禁独立系统 · 注意：门禁系统时钟为独立硬件计时，<b>未与NTP同步</b>。</div>
+      <div class="notice-box">数据来源：校园门禁独立系统 · 数据采集时间：2018年6月14日全天。</div>
       <div id="access-loading" style="padding:30px; text-align:center; color:#888;">正在加载门禁日志...</div>`;
     setTimeout(async () => {
       const logs = await (await fetch('/api/access-logs')).json();
@@ -2425,10 +2430,7 @@ async function intraPage(p, aEl){
                 <td>${l.status}</td>
               </tr>`).join('')}
           </tbody>
-        </table>
-        <div class="info-box">💡 对比日记上的 [18:41][18:57][19:03][19:11]<br>
-        门禁显示19:03许妍进入B-317，19:11"未知用户"又进入？19:18显示"数据复制完成"？<br>
-        服务器时间显示数据复制也是19:03开始——许妍进入和复制开始的先后关系需要再想想。</div>`;
+        </table>`;
     }, 500);
   } else if(p === 'student'){
     el.innerHTML = `
@@ -2451,7 +2453,6 @@ async function intraPage(p, aEl){
       <div id="floor-body" style="margin-top:20px;"></div>`;
   } else if(p === 'chatlogs'){
     el.innerHTML = `<h3 style="color:#1a3a60; margin-bottom:16px;">💬 聊天记录存档 · 6·14 相关证词</h3>
-      <div class="notice-box">四人的记忆描述不完全一致——会不会有人的记忆被修改过？</div>
       <div id="cl-loading" style="padding:20px; color:#888;">读取存档...</div>`;
     setTimeout(async () => {
       const data = await (await fetch('/api/chatlogs')).json();
@@ -2459,16 +2460,12 @@ async function intraPage(p, aEl){
         <div class="enterprise-card" style="margin-bottom:14px; background:${i%2?'#faf8f0':'#fff'}">
           <h4>📝 ${c.witness}</h4>
           <p>"${c.statement}"</p>
-        </div>`).join('') + `
-        <div class="info-box">
-        ⚠ 证词矛盾：<br>· 18点前走了 · 18:40还在教室 · 没去B楼 · 19:03看见她进入<br>
-        或者某个系统的时间和真实时间对不上？比如那个"独立硬件计时"的门禁。</div>`;
+        </div>`).join('');
     }, 500);
   } else if(p === 'timeline'){
     el.innerHTML = `
       <h3 style="color:#1a3a60; margin-bottom:16px;">⏱ 多系统时间校准工具</h3>
-      <div class="notice-box">事件基准：QX-18数据复制启动（企业服务器标准时间 19:03:00）<br>
-      用下方按钮查询其他系统对"同一瞬间"显示的时间，计算各系统之间的偏差。</div>
+      <div class="notice-box">以 QX-18 数据复制启动为基准，查询其他系统在"同一瞬间"显示的时间，供参考。</div>
       <div style="margin-bottom:20px;">
         <button class="btn" onclick="loadTime('access')">门禁系统时间</button>
         <button class="btn btn-secondary" onclick="loadTime('server')">企业服务器时间</button>
@@ -2477,15 +2474,13 @@ async function intraPage(p, aEl){
       </div>
       <div id="time-result"></div>
       <div class="timeline-tool">
-        <h4 style="margin-bottom:10px;">🧩 重构"6·14当晚"真正的时间线</h4>
+        <h4 style="margin-bottom:10px;">🧩 重构"6·14当晚"的事件顺序</h4>
         <div style="font-size:12px; color:#666; margin-bottom:10px;">
-          说明：先从"时间池"点选，按真实发生顺序放入上方"时间槽"（点错了可以点上方再次移除）。<br>
-          关键提示：许妍发消息 → 拍照片 → 【有人（非许妍）进入B-317】→ 数据开始复制 → 许妍进入 → 复制完成 → 学校处理 → 企业来人 → 断电 → 记录停止。<br>
-          （注意门禁比真实时间快了7分钟）
+          从下方"事件池"中点选，按你推断的真实发生顺序排入"事件序列"。点错了可以点上方再次移除。
         </div>
-        <div style="font-size:12px; color:#666;">已排列顺序：</div>
+        <div style="font-size:12px; color:#666;">事件序列：</div>
         <div class="timeline-slots" id="tl-slots"></div>
-        <div style="font-size:12px; color:#666;">时间池：</div>
+        <div style="font-size:12px; color:#666;">事件池：</div>
         <div class="timeline-pool" id="tl-pool"></div>
         <div style="margin-top:14px;">
           <button class="btn" onclick="submitTimeline()">提交时间线</button>
@@ -2493,20 +2488,17 @@ async function intraPage(p, aEl){
         </div>
         <div class="timeline-result" id="tl-result"></div>
       </div>`;
+    shuffleTimelinePool();
+    tlSelected = [];
     renderTimelineTool();
   } else if(p === 'qx18'){
     el.innerHTML = `
       <h3 style="color:#1a3a60; margin-bottom:16px;">📁 项目文档区 · QX-18</h3>
-      <div class="notice-box">文件名格式：QX18_[分级]_[编号]<br>
-      已知编号参考：SUB-0617许妍；SUB-0618林嘉；SUB-0621陈放；SUB-0624苏雨；SUB-0627周航；SUB-0630数据缺失</div>
+      <div class="notice-box">文件名格式：QX18_[分级]_[编号]</div>
       <div class="form-row">
         <label style="width:auto;">文件编号：</label>
         <input type="text" id="qx18-file" placeholder="QX18_A03_SUB0617" style="max-width:260px;" onkeydown="if(event.key==='Enter') loadQX18()">
         <button class="btn" onclick="loadQX18()">读取</button>
-      </div>
-      <div style="margin:16px 0; font-size:12px; color:#666;">快捷：
-        <a style="cursor:pointer; color:#2244aa; text-decoration:underline;" onclick="document.getElementById('qx18-file').value='QX18_A03_SUB0617'; loadQX18();">QX18_A03_SUB0617(许妍)</a> ·
-        <a style="cursor:pointer; color:#2244aa; text-decoration:underline;" onclick="document.getElementById('qx18-file').value='QX18_A03_SUB0630'; loadQX18();">QX18_A03_SUB0630(???)</a>
       </div>
       <div id="qx18-body"></div>`;
   }
@@ -2532,7 +2524,7 @@ async function searchStu(){
       <div style="margin-top:14px; padding:10px; background:#f0f0f0; font-family:Consolas; font-size:11px; color:#555;">
       [调试信息] hidden_field = ${r.hiddenData}</div>
       <div style="margin-top:10px; font-size:12px; color:#666;">
-        💡 Base64解码：<span id="decoded-val" style="cursor:pointer; text-decoration:underline;" onclick="document.getElementById('decoded-val').textContent=atob('${r.hiddenData}')">[点击解码]</span>
+        Base64：<span id="decoded-val" style="cursor:pointer; text-decoration:underline;" onclick="document.getElementById('decoded-val').textContent=atob('${r.hiddenData}')">[解码]</span>
       </div>`;
   } else {
     el.innerHTML = `<h4 style="margin:14px 0;">档案详情</h4>
@@ -2556,35 +2548,57 @@ async function loadFloor(y){
       <tr class="odd"><th>最后一间</th><td><b>${r.lastRoom}</b> ${r.purpose? '（用途：' + r.purpose + '）': ''} ${r.note? '（' + r.note + '）': ''}</td></tr>
       <tr><th>房间列表</th><td style="font-family:Consolas;">${r.rooms.join(' · ')}</td></tr>
     </table>
-    <div class="info-box" style="margin-top:14px;">${r.lastRoom==='B-317'?'2017年：B-317明确存在，用途学生综合研究室。':'2019年：B-316之后直接是楼梯，B-317从图纸上消失了。'}</div>`;
+    <div class="info-box" style="margin-top:14px;">${r.lastRoom==='B-317'?'2017存档：B-317 存在（用途：学生综合研究室）。':'2019存档：B-316 之后标注为楼梯间A。'}</div>`;
 }
 async function loadTime(src){
   const r = await (await fetch('/api/server-time?source='+src)).json();
   document.getElementById('time-result').innerHTML = `
     <table class="data-table" style="margin-top:10px;">
-      <tr><th style="width:180px;">数据来源</th><td>${({access:'门禁系统独立时钟（未同步NTP）',server:'企业服务器（NTP校准）',monitor:'学校监控录像',photo:'学生手机拍照EXIF'})[src]||src}</td></tr>
-      <tr class="odd"><th>数据复制启动瞬间其显示时间</th><td style="font-family:Consolas;">${r.displayTime.substr(11)}</td></tr>
+      <tr><th style="width:180px;">数据来源</th><td>${({access:'门禁系统',server:'企业服务器',monitor:'学校监控录像',photo:'学生手机拍照EXIF'})[src]||src}</td></tr>
+      <tr class="odd"><th>显示时间</th><td style="font-family:Consolas;">${r.displayTime.substr(11)}</td></tr>
       <tr><th>备注</th><td>${r.note||'-'}</td></tr>
     </table>`;
 }
 
-const TIMELINE_EVENTS = ['18:41','18:42','18:56','19:03','19:11','19:18','19:24','19:32','19:47','20:13'];
+const TIMELINE_EVENTS = [
+  { id: 'msg',     desc: '许妍发出一条消息' },
+  { id: 'photo',   desc: '一张照片被拍摄' },
+  { id: 'enter1',  desc: '有人刷卡进入B-317' },
+  { id: 'copy',    desc: '数据复制启动' },
+  { id: 'enter2',  desc: '许妍刷卡进入B-317' },
+  { id: 'done',    desc: '数据复制完成' },
+  { id: 'school',  desc: '学校启动异常处理' },
+  { id: 'company', desc: '企业人员抵达校园' },
+  { id: 'power',   desc: 'B楼供电中断' },
+  { id: 'stop',    desc: '公开记录停止更新' },
+];
+// 打乱时间池顺序（每次进入页面时重新打乱）
+let TIMELINE_POOL = [];
 let tlSelected = [];
+function shuffleTimelinePool(){
+  TIMELINE_POOL = [...TIMELINE_EVENTS];
+  for(let i = TIMELINE_POOL.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [TIMELINE_POOL[i], TIMELINE_POOL[j]] = [TIMELINE_POOL[j], TIMELINE_POOL[i]];
+  }
+}
 function renderTimelineTool(){
   const pool = document.getElementById('tl-pool');
   const slots = document.getElementById('tl-slots');
+  if(!pool) return;
   pool.innerHTML = ''; slots.innerHTML = '';
-  TIMELINE_EVENTS.forEach(t => {
+  TIMELINE_POOL.forEach(e => {
     const d = document.createElement('span');
-    d.className = 'time-chip' + (tlSelected.includes(t)?' used':'');
-    d.textContent = t;
-    if(!tlSelected.includes(t)) d.onclick = () => { tlSelected.push(t); renderTimelineTool(); };
+    d.className = 'time-chip' + (tlSelected.includes(e.id)?' used':'');
+    d.textContent = e.desc;
+    if(!tlSelected.includes(e.id)) d.onclick = () => { tlSelected.push(e.id); renderTimelineTool(); };
     pool.appendChild(d);
   });
-  tlSelected.forEach((t,i) => {
+  tlSelected.forEach((id,i) => {
+    const ev = TIMELINE_EVENTS.find(e => e.id === id);
     const d = document.createElement('span');
     d.className = 'time-chip';
-    d.textContent = (i+1) + '. ' + t;
+    d.textContent = (i+1) + '. ' + (ev ? ev.desc : id);
     d.onclick = () => { tlSelected.splice(i,1); renderTimelineTool(); };
     slots.appendChild(d);
   });
@@ -2597,7 +2611,7 @@ async function submitTimeline(){
   })).json();
   const el = document.getElementById('tl-result');
   el.className = 'timeline-result ' + (r.success?'success':'failed');
-  el.innerHTML = (r.success?'✅ ':'❌ ') + r.message + (r.success?' <a style="color:#206020; text-decoration:underline; cursor:pointer;" onclick="checkEndingAvailable()">► 所有碎片齐全了吗？</a>':' 试试考虑7分钟偏差。');
+  el.innerHTML = (r.success?'✅ ':'❌ ') + r.message + (r.success?' <a style="text-decoration:underline; cursor:pointer;" onclick="checkEndingAvailable()">► 所有碎片齐全了吗？</a>':' 重新核对一下时间戳。');
 }
 
 async function loadQX18(){
@@ -2928,50 +2942,75 @@ async function entLogin(){
         <h5>📄 ${d.title}</h5>
         ${d.content.map(l => `<div>${l}</div>`).join('')}
       </div>
-      <div class="info-box" style="margin-top:16px;">
-      💡 综合结论：<br>
-      · 数据复制过程 <b>在许妍进入B-317之前就已经开始</b>（所以18:56有人先进去）<br>
-      · 许妍并非实验发起者，甚至不是目标——她是个无法预料的变量。<br>
-      · 记忆干预程序启动：解释了其他人为什么会忘记许妍。<br>
-      · SUB-0630（就是"我"）：记忆恢复失败——那一天我究竟发生了什么？
-      </div>
       <div style="margin-top:20px; text-align:center;">
-        <button class="btn btn-danger" style="padding:10px 28px;" onclick="checkEndingAvailable()">🧩 我已经拼齐了所有真相 → 前往B楼</button>
+        <button class="btn btn-danger" style="padding:10px 28px;" onclick="checkEndingAvailable()">前往B楼</button>
       </div>`;
   } else {
-    err.innerHTML = `<div style="color:#ff8080; font-size:12px; margin:6px 0;">${r.message}</div>`;
+    err.innerHTML = `<div style="font-size:12px; margin:6px 0; color:#666;">${r.message}</div>`;
   }
 }
 
 // ================== 结局判定 ==================
+function hasHiddenEndingConditions(){
+  // 隐藏结局额外3条件：5视角登录过 + 时间校准 + A03档案从回收站还原
+  let logged = [];
+  try{ logged = JSON.parse(localStorage.getItem('dcyz_logged_users') || '[]'); }catch(e){}
+  const fiveViews = ['me','xuyan','principal','mentor','teacher'].every(u => logged.includes(u));
+  return fiveViews && timeCorrected && a03Restored;
+}
 function checkEndingAvailable(){
   fetch('/api/state').then(r=>r.json()).then(s => {
     const missing = [];
-    if(!s.timelineReconstructed) missing.push('内网"时间校准工具"中重构的正确时间线');
-    if(!s.qx18Unlocked) missing.push('启明星计划网站"授权登录"');
-    if(!s.enterpriseUnlocked) missing.push('启明教育企业网站"内部文档"');
+    if(!s.timelineReconstructed) missing.push('时间线');
+    if(!s.qx18Unlocked) missing.push('授权');
+    if(!s.enterpriseUnlocked) missing.push('文档');
     if(missing.length > 0){
-      alert('你还缺少关键线索：\n\n· ' + missing.join('\n· ') + '\n\n请先完成以上部分。');
+      alert('似乎还有一些线索没有集齐。\n\n已收集 ' + (3-missing.length) + '/3');
       return;
     }
-    showConfirm('所有碎片都已拼齐。\n\n现在，你要去B楼吗？\n（许妍在日记最后留下的话——"如果你想知道真相，就去B楼。今晚。"）', triggerEnding, '最后的选择');
+    const overlay = document.getElementById('game-modal-overlay');
+    document.getElementById('gm-header').textContent = '最后的选择';
+    let body = '所有碎片都已拼齐。\n\n现在，你要去B楼吗？';
+    let extraLink = '';
+    if(hasHiddenEndingConditions()){
+      extraLink = '<div id="anchor-gate" style="margin-top:18px; padding-top:14px; border-top:1px dashed #ccc; font-size:12px; color:#888; text-align:center; cursor:pointer; letter-spacing:1px;">……等等。我好像漏了旧电脑上的什么东西。</div>';
+    }
+    document.getElementById('gm-body').innerHTML = body.replace(/\n/g,'<br>') + extraLink;
+    const footer = document.getElementById('gm-footer');
+    footer.innerHTML = '<button class="game-modal-btn secondary" onclick="hideModal()">取消</button>' +
+      '<button class="game-modal-btn danger" id="gm-yes-btn">前往B楼</button>';
+    document.getElementById('gm-yes-btn').onclick = () => { hideModal(); triggerEnding('truth'); };
+    overlay.classList.add('active');
+    const g = document.getElementById('anchor-gate');
+    if(g) g.onclick = () => { hideModal(); triggerEnding('anchor'); };
   });
 }
 
-async function triggerEnding(){
+async function triggerEnding(choice){
   const r = await (await fetch('/api/ending',{
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({finalChoice: 'truth'})
+    body: JSON.stringify({finalChoice: choice || 'truth'})
   })).json();
   if(!r.success){ alert(r.message); return; }
+  const hidden = r.ending.type === 'hidden';
   const scr = document.getElementById('ending-screen');
+  // 隐藏结局换一点色调
   scr.classList.add('active');
+  if(hidden){
+    scr.style.background = 'linear-gradient(180deg, #060018 0%, #000 100%)';
+  } else {
+    scr.style.background = '';
+  }
   const textEl = document.getElementById('ending-text');
+  textEl.innerHTML = '';
+  document.getElementById('ending-photo').innerHTML = '';
+  document.getElementById('ending-photo-back').style.display = 'none';
+  document.getElementById('ending-final').innerHTML = '';
   const lines = r.ending.text;
   let i = 0;
   (function showLine(){
     if(i >= lines.length){
-      setTimeout(showPhoto, 800);
+      setTimeout(() => showPhoto(hidden, r.ending.photoTimestamp), 800);
       return;
     }
     const l = lines[i++];
@@ -2982,27 +3021,73 @@ async function triggerEnding(){
   })();
 }
 
-function showPhoto(){
+function showPhoto(hidden, photoTime){
   const ph = document.getElementById('ending-photo');
+  const futureTitle = hidden ? '我（来自2026）——刚刚按下快门的人，也站进了画面里。' : '2026年的我？？？';
   ph.innerHTML = `
-    <div style="margin-bottom:10px;">📷 东川一中 班级活动照 · EXIF: 2018/06/14 18:42</div>
+    <div style="margin-bottom:10px;">📷 东川一中 班级活动照 · EXIF: ${photoTime || '2018/06/14 18:42'}</div>
     <div class="photo-line">
       <div class="person" title="林嘉"></div>
       <div class="person" title="陈放"></div>
       <div class="person" title="苏雨"></div>
       <div class="person special" title="许妍（没有看镜头，她在看我）"></div>
       <div class="person" title="周航"></div>
-      <div class="person future" title="2026年的我？？？"></div>
+      <div class="person future" title="${futureTitle}"></div>
     </div>`;
   setTimeout(() => {
-    document.getElementById('ending-photo-back').style.display = 'block';
-    document.getElementById('ending-photo-back').textContent = '照片背面：你终于想起来了。';
-    setTimeout(showFinal, 1500);
+    const back = document.getElementById('ending-photo-back');
+    back.style.display = 'block';
+    back.textContent = hidden ? '照片背面：这一次，记得带她出来。' : '照片背面：你终于想起来了。';
+    setTimeout(() => showFinal(hidden), 1500);
   }, 1600);
 }
-function showFinal(){
+function showFinal(hidden){
   const finalEl = document.getElementById('ending-final');
-  const finalText = `
+  let finalText;
+  if(hidden){
+    finalText = `
+    <div style="text-align:center; font-size:16px; margin-bottom:20px; color:#ccddee;">
+      ════════════════════════════════
+    </div>
+    我终于明白了——为什么2018年的班级照片里，会有2026年的我。
+
+    因为是我自己站进去的。
+
+    许妍在QX18-A03最后一次注入的瞬间，改写了锚定参数：
+    对照源不是她自己，而是来自八年后的、手里拿着路线图的我。
+
+    她赌了一把：
+    如果我能靠她留下的线索一步步走到这里，
+    那么我一定也能在按下快门的瞬间，顺着锚点走回2018年6月14日18:42——
+    亲自把"许妍会消失"这条时间线，拧回正轨。
+
+    取景框里的她，回头冲我笑了一下。
+    那是知道自己赌赢了的笑。
+
+    <div style="text-align:center; font-size:16px; margin-top:20px; letter-spacing:2px;">
+      ════════════════════════════════
+      <br>
+      QX18-A03 锚定成功。
+      <br>
+      对照源：2026年的我。
+      <br>
+      目标：带她离开B-317。
+      <br>
+      ════════════════════════════════
+    </div>
+
+    <div style="margin-top:30px; text-align:center; color:#668;">
+      我把手伸向屏幕里的走廊尽头——
+      <br>
+      <b style="color:#aad;">她也伸出了手。</b>
+    </div>
+
+    <div style="margin-top:40px; padding-top:20px; border-top:1px dashed #334; text-align:center; font-size:13px; color:#556;">
+      ═══ 《白昼失踪》 · 隐藏结局 · 闭环之锚 ═══
+    </div>
+  `;
+  } else {
+    finalText = `
     <div style="text-align:center; font-size:16px; margin-bottom:20px; color:#ccddee;">
       ════════════════════════════════
     </div>
@@ -3021,7 +3106,7 @@ function showFinal(){
     因为她懂我：如果答案是别人告诉我的，我也许永远不会相信。
     她要我自己把那一天重新拼出来。
 
-    <div style="text-align:center; font-size:16px; margin-top:20px; color:#ffaaaa; letter-spacing:2px;">
+    <div style="text-align:center; font-size:16px; margin-top:20px; letter-spacing:2px;">
       ════════════════════════════════
       <br>
       2018年6月14日，学校里消失的，不只有许妍。
@@ -3040,6 +3125,7 @@ function showFinal(){
       ═══ 《白昼失踪》 · 全剧终 ═══
     </div>
   `;
+  }
   let j = 0;
   (function typeFinal(){
     if(j >= finalText.length){ return; }
