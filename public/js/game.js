@@ -277,7 +277,7 @@ function ctxAction(type){
       `<b>东川一中 · 工作桌面</b><hr style="border-color:#ddd;margin:8px 0">` +
       `🖥️ 系统：Windows 2000 Server（校园定制版）<br>` +
       `👤 当前用户：<b>${u.name}</b>（${u.role}）<br>` +
-      `📅 系统时间：<b style="color:#a02020">2018年6月14日 18:41:00（与标准时偏差 ≈ 8年）</b><br>` +
+      `📅 系统时间：<b>2018年6月14日 18:41:00（与标准时偏差 ≈ 8年）</b><br>` +
       `💾 桌面项目：${Array.from(document.querySelectorAll('#desktop .desktop-folder')).filter(x=>x.style.display!=='none').length} 个<br>` +
       `🔐 登录域：<b>DCYZ-EDU.LOCAL</b><br>` +
       `📡 网络状态：<b>已连接至启明教育内网专线</b>`,
@@ -377,12 +377,12 @@ function showPrologue(){
     '我坐在这台闲置了八年的旧电脑前，',
     '屏幕上的灰尘反射着微弱的光。',
     '',
-    '八年前的那个夏天，我的好朋友 <span class="highlight">许妍</span> 失踪了。',
+    '八年前的那个夏天，我的好朋友 许妍 失踪了。',
     '没有告别，没有遗书，',
     '她的一切痕迹在一夜之间从世界上消失——',
     '学校档案、毕业合照、甚至所有人的记忆。',
     '',
-    '只留下这本练习册，和一些无法解释的时间矛盾。',
+    '只留下这本日记，和一些无法解释的时间矛盾。',
     '',
     ' <span class="question">有人说她转学了。</span>',
     ' <span class="question">有人说她根本不存在过。</span>',
@@ -391,8 +391,8 @@ function showPrologue(){
     '今晚，我决定重新打开这台电脑，',
     '追查所有蛛丝马迹——',
     '',
-    ' <span class="highlight">真相，藏在数据的缝隙里。</span>',
-    ' <span class="highlight">而数据，永远不会说谎。</span>',
+    ' 真相，藏在数据的缝隙里。',
+    ' 而数据，永远不会说谎。',
   ];
 
   let idx = 0, charIdx = 0, current = '';
@@ -430,12 +430,8 @@ function startGame(){
   setTimeout(() => {
     screen.classList.remove('active');
     screen.style.opacity = '';
-    // 显示任务栏
-    document.getElementById('taskbar').style.display = 'flex';
-    // 初始化用户UI（开始菜单头像、隐藏专属文件图标）
-    updateUserUI();
-    // 初始化用户体系下的QQ联系人（可能新增了一些）
-    renderQQContacts();
+    // 点击"开始调查"后进入"选择登录用户"页面
+    openLockScreen(true);
   }, 800);
 }
 
@@ -495,7 +491,7 @@ function applyClock(){
     renderDiary(currentDiaryIdx);
     showModal('时间已校准。\n\n一些之前被隐藏的内容现在可以看到了。\n\n去检查许妍的日记和其他地方...', '系统时间更新');
   } else {
-    note.innerHTML = '<span class="clock-hint-wrong">⚠ 时间已更改，但似乎还不正确...\n\n提示：练习册上的日期是多少？</span>';
+    note.innerHTML = '<span class="clock-hint-wrong">⚠ 时间已更改，但似乎还不正确...\n\n提示：日记上的日期是多少？</span>';
     timeCorrected = false;
     renderDiary(currentDiaryIdx);
   }
@@ -505,7 +501,7 @@ function applyClock(){
 /*
   线索位置（玩家需要自行推理组合）:
   - 许妍 密码: xuyan_B317_0614
-    线索：日记里反复出现B317 + 日期0614 + 练习册里的用户名
+    线索：日记里反复出现B317 + 日期0614 + 日记里的用户名
   - 校长（陈国栋）密码: Chen_19680322_DCYZ
     线索：学校官网校长致辞"出生于1968年3月22日" + 校园简介里DCYZ缩写 + 署名"陈国栋"
   - 导师（秦明辉）密码: QmHui_QX18_1975
@@ -528,6 +524,7 @@ const USERS = {
 let currentUser = 'me';
 let a03Restored = false;  // 校长回收站A03档案是否已还原到桌面
 let lockSelectedUser = null;
+let gameStarted = false;  // 是否已完成首次登录（用于区分首次进入与后续切换用户）
 
 function updateUserUI(){
   const u = USERS[currentUser];
@@ -746,8 +743,23 @@ function tryLogin(){
   }
   document.getElementById('lock-err').textContent = '';
   document.getElementById('lock-screen').classList.remove('active');
+  // 首次登录：显示任务栏、初始化用户UI和QQ联系人
+  const firstLogin = !gameStarted;
+  if(firstLogin){
+    gameStarted = true;
+    document.getElementById('taskbar').style.display = 'flex';
+    updateUserUI();
+    renderQQContacts();
+  }
   // 欢迎提示
-  if(currentUser === 'xuyan'){
+  if(firstLogin){
+    // 首次登录不显示"切换成功"提示，直接进入桌面
+    if(currentUser === 'me'){
+      showModal('欢迎回来。\n\n这台旧电脑已经很久没开过了……\n桌面上的图标就是你现在能做的事。\n\n（提示：点击左下角"开始"菜单可以切换用户，但你得先找到其他人的密码）', '登录成功');
+    } else {
+      showModal(`欢迎，${USERS[currentUser].name}。\n\n你已经以 ${USERS[currentUser].role} 的身份登录。`, '登录成功');
+    }
+  } else if(currentUser === 'xuyan'){
     showModal('切换成功：许妍视角\n\n桌面现在多出一个"加密日记"图标。\n这是她写下的、只有自己才能看到的内容...', '登录成功');
   } else if(currentUser === 'principal'){
     showModal('切换成功：校长 陈国栋\n\n桌面上出现了一个"校长密函"文件夹。\n这是他授意掩盖许妍失踪事件的原始文件...', '登录成功');
@@ -760,7 +772,7 @@ function tryLogin(){
   }
 }
 
-function openLockScreen(){
+function openLockScreen(isFirstTime){
   lockSelectedUser = currentUser;
   renderLockUserList();
   // 显示已保存账号列表（一键登录）
@@ -783,6 +795,9 @@ function openLockScreen(){
   }
   updLockClock();
   if(!window._lockClockTimer) window._lockClockTimer = setInterval(updLockClock, 1000);
+  // 首次进入（从"开始调查"过来）或游戏尚未开始时，隐藏"返回桌面"按钮（没有桌面可返回）
+  const backBtn = document.querySelector('.lock-switch-back');
+  if(backBtn) backBtn.style.display = (isFirstTime || !gameStarted) ? 'none' : '';
   document.getElementById('lock-screen').classList.add('active');
 }
 
@@ -857,30 +872,30 @@ const USER_FILES = {
 <p>2. 18:58 服务器启动协议，同时为后续掩盖，<strong>系统整体时钟 +7分钟</strong>。</p>
 <p>3. 19:03（实际为18:56）协议注入，被试者<strong>记忆开始偏移</strong>。</p>
 <p>4. 19:11（实际为19:04）数据访问高峰，协议同步至学校网络。</p>
-<p>5. <span style="color:#a00;"><strong>异常发生：</strong></span>被试者本人的<strong>存在记忆</strong>（而非单个事件）被连带改写。其本人从系统中"消失"。</p>
+<p>5. <strong>异常发生：</strong>被试者本人的<strong>存在记忆</strong>（而非单个事件）被连带改写。其本人从系统中"消失"。</p>
 <p>&nbsp;</p>
 <p><strong>数据：</strong></p>
-<p>· 偏移量：<code style="background:#e0e0ff;padding:2px 6px;">ΔT = +7 分钟</code></p>
+<p>· 偏移量：<code>ΔT = +7 分钟</code></p>
 <p>· 影响范围：被试者本人 + 所有关联个体记忆</p>
-<p>· 副作用等级：<code style="background:#ffe0e0;padding:2px 6px;color:#a00;">S 级 · 不可逆转</code></p>
+<p>· 副作用等级：<code>S 级 · 不可逆转</code></p>
 <p>&nbsp;</p>
 <p><strong>后续建议：</strong></p>
 <p>1. 由陈校长出面负责校园口径处理。</p>
 <p>2. 数据备份，<code>QX18_A03_20180614.db</code> 加密存入服务器。</p>
-<p>3. <span style="color:#a00;">该项目须暂停，<strong>但可在8年后的同日再次尝试</strong>——根据理论模型，原被试者可能会在新的锚定点"浮现"。</span></p>
+<p>3. 该项目须暂停，<strong>但可在8年后的同日再次尝试</strong>——根据理论模型，原被试者可能会在新的锚定点"浮现"。</p>
 <p>&nbsp;</p>
 <p style="text-align:right;">—— 秦明辉 · 启明教育科技有限公司</p>
 <div class="doc-stamp">启明星计划<br>QX18-A03<br>绝密</div>`
   },
   a03_archive: {
     title:'⚠️【还原】A03 许妍 完整档案（机密级）',
-    html:`<div class="doc-secret" style="background:linear-gradient(90deg,#900,#b03030,#900);">★ 机密 · 仅校长阅 ★ 此文件已从回收站还原 ★</div>
+    html:`<div class="doc-secret">★ 机密 · 仅校长阅 ★ 此文件已从回收站还原 ★</div>
 <div class="doc-head">A03 · 许妍 —— QX18 被试完整档案</div>
 <div class="doc-meta">
   档案编号：QX18-A03-2018-0614-HK<br>
   创建人：启明教育 · 周博士<br>
-  删除时间：<b style="color:#b01020">2018-06-15 00:13（校长陈国栋手动删除）</b><br>
-  <span style="color:#a00;">⚠ 原文件应为 38MB，此处仅保留校长曾看过的 4 页概要</span>
+  删除时间：<b>2018-06-15 00:13（校长陈国栋手动删除）</b><br>
+  ⚠ 原文件应为 38MB，此处仅保留校长曾看过的 4 页概要
 </div>
 
 <p><strong>【第1页】基础信息</strong></p>
@@ -893,19 +908,19 @@ const USER_FILES = {
 同期入选名单（共5人）：<br>
 　A01 林×（高三1班，已删除，封口完成）<br>
 　A02 王×（高三4班，已删除，封口完成）<br>
-　A03 <b style="color:#a02020">许妍（高三3班，本次实验对象，封口失败）</b><br>
+　A03 <b>许妍（高三3班，本次实验对象，封口失败）</b><br>
 　A04 刘××（高二，已删除，封口完成）<br>
-　A05 陈×（本校陈校长侄女，对照组，<b style="color:#060">未做任何处理</b>）</p>
+　A05 陈×（本校陈校长侄女，对照组，未做任何处理）</p>
 <p>&nbsp;</p>
 <p><strong>【第3页】实验摘要</strong></p>
 <p>共 7 次 QX18 注入，末次：2018-06-14 19:03(+00:07偏移)<br>
-记忆改写成功率：<b style="color:#a02020">对外人(97.4%)，对本人(41.6%)</b> ← 本人反抗强烈<br>
-未覆盖锚点：共 3 处 <code style="background:#ffe0e0;padding:2px 6px">① 7 分钟差、② 蓝色发带、③ "你要记得我啊"语音残片</code><br>
-<b style="color:#b01020">副作用爆发：其存在从集体记忆中消失，并发生逆传染（同桌、小夏开始记起她）</b></p>
+记忆改写成功率：<b>对外人(97.4%)，对本人(41.6%)</b> ← 本人反抗强烈<br>
+未覆盖锚点：共 3 处 <code>① 7 分钟差、② 蓝色发带、③ "你要记得我啊"语音残片</code><br>
+<b>副作用爆发：其存在从集体记忆中消失，并发生逆传染（同桌、小夏开始记起她）</b></p>
 <p>&nbsp;</p>
 <p><strong>【第4页】校长操作日志</strong></p>
 <p>2018-06-15 00:10 陈国栋登录系统，浏览本档案 2 分 47 秒。<br>
-2018-06-15 00:13 <b style="color:#a02020">校长点"删除"，未选"彻底删除"，仅移入回收站。</b><br>
+2018-06-15 00:13 <b>校长点"删除"，未选"彻底删除"，仅移入回收站。</b><br>
 操作日志备注：<br>
 <code style="background:#f0f0f0;padding:8px;display:block;line-height:1.7;color:#444">
 admin_chen@DCYZ-EDU:> del A03-许妍-完整档案.pdf
@@ -914,8 +929,8 @@ admin_chen@DCYZ-EDU:> del A03-许妍-完整档案.pdf
 [系统备注] 管理员习惯：重要文件<u>从不</u>使用 /purge，以防"日后需要"（此习惯来自校长本人04年泄密事件后）
 </code></p>
 <p>&nbsp;</p>
-<p style="text-align:right;color:#b01020">—— 档案结束 · 解密时间：文件被还原的那一刻</p>
-<div class="doc-stamp" style="background:linear-gradient(180deg,#fff0f0,#ffd0d0);color:#a02020">回收站<br>还原印记<br>A03</div>`
+<p style="text-align:right;">—— 档案结束 · 解密时间：文件被还原的那一刻</p>
+<div class="doc-stamp">回收站<br>还原印记<br>A03</div>`
   }
 };
 
@@ -972,7 +987,7 @@ function renderLMSModule(){
         <strong>本日待办：</strong><br>
         · 高三(2)班期末考试座位表审核（截止 6/16）<br>
         · 启明星计划(QX-18)学生名单复核（截止 6/20）<br>
-        · <span style="color:#c00;">高三(3)班许妍同学学籍异常处理（紧急）</span>
+        · 高三(3)班许妍同学学籍异常处理（紧急）
       </div>
       <div class="lms-info-card warn">
         <strong>⚠ 系统通知：</strong><br>
@@ -983,7 +998,7 @@ function renderLMSModule(){
         <tr><th>班级</th><th>人数</th><th>今日考勤</th><th>启明星入选</th><th>备注</th></tr>
         <tr><td>高三(1)班</td><td>48</td><td>到齐</td><td>3</td><td>—</td></tr>
         <tr><td>高三(2)班</td><td>47</td><td>1请假</td><td>2</td><td>—</td></tr>
-        <tr class="highlight-row"><td>高三(3)班</td><td>46</td><td>到齐</td><td>2</td><td>含1名已转学</td></tr>
+        <tr><td>高三(3)班</td><td>46</td><td>到齐</td><td>2</td><td>含1名已转学</td></tr>
         <tr><td>高三(4)班</td><td>49</td><td>到齐</td><td>1</td><td>—</td></tr>
       </table>`;
   } else if(lmsCurrentModule === 'students'){
@@ -1000,7 +1015,7 @@ function renderLMSModule(){
         <tr><td>2018060201</td><td>李雯雯</td><td>高三(2)班</td><td><span class="status-active">在读</span></td><td>2016-09-01</td><td>2018-06-10</td><td>查看</td></tr>
         <tr><td>2018060202</td><td>夏洁</td><td>高三(2)班</td><td><span class="status-active">在读</span></td><td>2016-09-01</td><td>2018-06-10</td><td>查看</td></tr>
         <tr><td>2018060203</td><td>我（玩家）</td><td>高三(2)班</td><td><span class="status-active">在读</span></td><td>2016-09-01</td><td>2018-06-10</td><td>查看</td></tr>
-        <tr class="deleted-row"><td>2018060308</td><td>许妍</td><td>高三(3)班</td><td><span class="status-deleted">已删除</span></td><td>2016-09-01</td><td>2018-06-15 08:31</td><td>查看归档</td></tr>
+        <tr><td>2018060308</td><td>许妍</td><td>高三(3)班</td><td><span class="status-deleted">已删除</span></td><td>2016-09-01</td><td>2018-06-15 08:31</td><td>查看归档</td></tr>
         <tr><td>2018060301</td><td>王梓涵</td><td>高三(3)班</td><td><span class="status-active">在读</span></td><td>2016-09-01</td><td>2018-06-10</td><td>查看</td></tr>
         <tr><td>2018060302</td><td>陈思远</td><td>高三(3)班</td><td><span class="status-active">在读</span></td><td>2016-09-01</td><td>2018-06-10</td><td>查看</td></tr>
       </table>
@@ -1020,7 +1035,7 @@ function renderLMSModule(){
       <table class="lms-table">
         <tr><th>排名</th><th>学号</th><th>姓名</th><th>语文</th><th>数学</th><th>英语</th><th>理综</th><th>总分</th></tr>
         <tr><td>1</td><td>2018060301</td><td>王梓涵</td><td>128</td><td>142</td><td>135</td><td>278</td><td>683</td></tr>
-        <tr class="deleted-row"><td>2</td><td>2018060308</td><td>许妍</td><td>132</td><td>148</td><td>140</td><td>282</td><td>702</td></tr>
+        <tr><td>2</td><td>2018060308</td><td>许妍</td><td>132</td><td>148</td><td>140</td><td>282</td><td>702</td></tr>
         <tr><td>3</td><td>2018060302</td><td>陈思远</td><td>120</td><td>138</td><td>131</td><td>270</td><td>659</td></tr>
         <tr><td>4</td><td>2018060303</td><td>林婉清</td><td>118</td><td>135</td><td>128</td><td>265</td><td>646</td></tr>
         <tr><td>5</td><td>2018060304</td><td>赵子轩</td><td>115</td><td>140</td><td>125</td><td>260</td><td>640</td></tr>
@@ -1042,7 +1057,7 @@ function renderLMSModule(){
         <tr><th>学号</th><th>姓名</th><th>班级</th><th>上午</th><th>下午</th><th>晚自习</th><th>备注</th></tr>
         <tr><td>2018060201</td><td>李雯雯</td><td>高三(2)班</td><td>√</td><td>√</td><td>√</td><td>—</td></tr>
         <tr><td>2018060203</td><td>我（玩家）</td><td>高三(2)班</td><td>√</td><td>√</td><td>请假</td><td>外出寻人</td></tr>
-        <tr class="highlight-row"><td>2018060308</td><td>许妍</td><td>高三(3)班</td><td>√</td><td>√</td><td>—</td><td><strong>18:41后失联</strong></td></tr>
+        <tr><td>2018060308</td><td>许妍</td><td>高三(3)班</td><td>√</td><td>√</td><td>—</td><td><strong>18:41后失联</strong></td></tr>
         <tr><td>2018060301</td><td>王梓涵</td><td>高三(3)班</td><td>√</td><td>√</td><td>√</td><td>—</td></tr>
       </table>
       <div class="lms-info-card danger">
@@ -1067,7 +1082,7 @@ function renderLMSModule(){
       </div>
       <table class="lms-table">
         <tr><th>序号</th><th>学号</th><th>姓名</th><th>班级</th><th>入选日期</th><th>实验编号</th><th>状态</th></tr>
-        <tr class="deleted-row"><td>1</td><td>2018060308</td><td>许妍</td><td>高三(3)班</td><td>2018-03-25</td><td><strong>QX18-A03</strong></td><td><span class="status-deleted">已退出(异常)</span></td></tr>
+        <tr><td>1</td><td>2018060308</td><td>许妍</td><td>高三(3)班</td><td>2018-03-25</td><td><strong>QX18-A03</strong></td><td><span class="status-deleted">已退出(异常)</span></td></tr>
         <tr><td>2</td><td>2018060105</td><td>周明轩</td><td>高三(1)班</td><td>2018-03-25</td><td>QX18-A01</td><td><span class="status-active">实验中</span></td></tr>
         <tr><td>3</td><td>2018060112</td><td>李雨欣</td><td>高三(1)班</td><td>2018-03-25</td><td>QX18-A02</td><td><span class="status-active">实验中</span></td></tr>
         <tr><td>4</td><td>2018060218</td><td>陈昊</td><td>高三(2)班</td><td>2018-03-25</td><td>QX18-A04</td><td><span class="status-active">实验中</span></td></tr>
@@ -1116,8 +1131,8 @@ function renderLMSModule(){
         1. 我知道许妍根本没有转学。她消失在 B-317，这一点校长和秦导师都清楚。<br>
         2. 我手里保留了一份<strong>原始纸质成绩单</strong>（在三模考试卷宗里），上面有许妍的702分。<br>
         3. 我也保留了 B-317 门禁原始日志的<strong>截图</strong>——时间戳确实被改过7分钟。<br>
-        4. 如果有一天有人来查这件事，<strong>请去找我办公桌抽屉第二层的那份文件</strong>。密码是 <code style="background:#ffe;padding:2px 6px;">ZhangZQ_2010_DCYZ</code>（我自己电脑的登录密码，应该没人想到）。<br>
-        5. <strong>补充关于秦导师：</strong>上次去启明教育开项目会，他的电脑密码我瞟到一眼——他是个很自恋的人，<span style="color:#c00;">用的是自己的姓名缩写+项目代号+出生年份</span>这种格式，1975是他的生年没错吧？反正QX-18那个代号他肯定会加进去。
+        4. 如果有一天有人来查这件事，<strong>请去找我办公桌抽屉第二层的那份文件</strong>。密码是 <code>ZhangZQ_2010_DCYZ</code>（我自己电脑的登录密码，应该没人想到）。<br>
+        5. <strong>补充关于秦导师：</strong>上次去启明教育开项目会，他的电脑密码我瞟到一眼——他是个很自恋的人，用的是自己的姓名缩写+项目代号+出生年份这种格式，1975是他的生年没错吧？反正QX-18那个代号他肯定会加进去。
       </div>`;
   } else if(lmsCurrentModule === 'archive'){
     c.innerHTML = `
@@ -1127,15 +1142,15 @@ function renderLMSModule(){
       </div>
       <table class="lms-table">
         <tr><th>归档编号</th><th>学号</th><th>姓名</th><th>归档原因</th><th>归档日期</th><th>归档人</th><th>档案位置</th></tr>
-        <tr class="deleted-row"><td>DC-2018-M0614</td><td>2018060308</td><td>许妍</td><td>转学（实际：实验异常）</td><td>2018-06-15</td><td>admin</td><td><span style="color:#c00;">校长办公室保险柜</span></td></tr>
+        <tr><td>DC-2018-M0614</td><td>2018060308</td><td>许妍</td><td>转学（实际：实验异常）</td><td>2018-06-15</td><td>admin</td><td>校长办公室保险柜</td></tr>
         <tr><td>DC-2017-S0912</td><td>2016050128</td><td>赵晨阳</td><td>转学</td><td>2017-09-12</td><td>张志强</td><td>教务处档案室 B-12</td></tr>
         <tr><td>DC-2017-T0305</td><td>2016040215</td><td>钱欣怡</td><td>退学</td><td>2017-03-05</td><td>张志强</td><td>教务处档案室 B-15</td></tr>
       </table>
       <div class="lms-info-card warn">
         <strong>🔍 许妍档案的特别说明：</strong><br>
         该生档案归档后，<strong>实物档案（纸质学籍卡、成绩单、合影照片）被校长办公室单独取走，存放于行政楼3楼校长办公室保险柜</strong>，钥匙由校长本人保管。<br>
-        系统内的电子档案虽已删除，但<strong>数据库每周日自动备份</strong>，备份文件存于服务器机房，文件名格式：<code style="background:#f0f0ff;padding:2px 6px;">dcyz_backup_YYYYMMDD.sql</code>。<br>
-        如需查阅 2018-06-14 之前的完整数据，可尝试寻找 <code style="background:#f0f0ff;padding:2px 6px;">dcyz_backup_20180610.sql</code>。
+        系统内的电子档案虽已删除，但<strong>数据库每周日自动备份</strong>，备份文件存于服务器机房，文件名格式：<code>dcyz_backup_YYYYMMDD.sql</code>。<br>
+        如需查阅 2018-06-14 之前的完整数据，可尝试寻找 <code>dcyz_backup_20180610.sql</code>。
       </div>`;
   }
 }
@@ -1282,7 +1297,7 @@ const diaryEntries = [
     date: '2018年3月12日',
     weather: '晴 · 微风',
     tag: '开学第一天',
-    content: `新学期开始了。今天转来了一个新同学，坐在我后面。他总是盯着窗外看，很少说话。\n\n班主任说这学期要准备 <strong>启明星计划</strong> 的选拔，据说只有成绩前5%的同学才能参加。我一定要入选。\n\n放学的时候路过B楼，看到工人在搬运一些奇怪的设备。上面贴着 <span class="highlight-red">QX-18</span> 的标签。`,
+    content: function(){ return `新学期开始了。今天转来了一个新同学，坐在我后面。他总是盯着窗外看，很少说话。\n\n班主任说这学期要准备 <strong>启明星计划</strong> 的选拔，据说只有成绩前5%的同学才能参加。我一定要入选。\n\n放学的时候路过B楼，看到工人在搬运一些奇怪的设备。上面贴着 QX-18 的标签。`; },
     illustration: `┌─────────────┐
 │  启明星计划  │
 │  QX-18      │
@@ -1295,7 +1310,7 @@ const diaryEntries = [
     date: '2018年4月7日',
     weather: '多云',
     tag: '实验室的秘密',
-    content: `今天我们第一次进入启明星计划的预选名单。老师带我们参观了B-317实验室。\n\n实验室里有三台服务器，墙上贴着 <strong>启明教育科技</strong> 的合作铭牌。老师说这是和企业合作的项目，数据非常重要。\n\n我偷偷记下了服务器的IP地址：<span class="highlight-red">192.168.1.184</span>\n\n还有老师随口提到的——这个项目的代号就是<span class="highlight-red">QX18</span>。`,
+    content: function(){ return `今天我们第一次进入启明星计划的预选名单。老师带我们参观了B-317实验室。\n\n实验室里有三台服务器，墙上贴着 <strong>启明教育科技</strong> 的合作铭牌。老师说这是和企业合作的项目，数据非常重要。\n\n我偷偷记下了服务器的IP地址：192.168.1.184\n\n还有老师随口提到的——这个项目的代号就是QX18。`; },
     illustration: `    ╔═══════════════════╗
     ║  启明教育科技       ║
     ║  启明星计划 · QX-18 ║
@@ -1310,7 +1325,7 @@ const diaryEntries = [
     date: '2018年5月20日',
     weather: '雨',
     tag: '时间的疑点',
-    content: `今天我发现了一件奇怪的事。\n\n我在练习册上随手写了几个时间点：\n18:41 我给朋友发了QQ消息\n18:57 我离开教室\n19:03 门禁记录显示我进入B-317\n\n但是——我清楚地记得，那天我根本没有在19:03进入过B楼。\n\n门禁记录不会错，但我的记忆也不会错。\n\n<span class="highlight-red">有什么东西被篡改了。</span>\n\n${timeCorrected ? '我后来查了更多数据...时间差正好是 <span class="highlight-red">7分钟</span>。有人修改了服务器的系统时间。' : '<span class="hidden">（此处内容被遮盖——需要正确的系统时间才能显示）</span>'}`,
+    content: function(){ return `今天我发现了一件奇怪的事。\n\n我在日记上随手写了几个时间点：\n18:41 我给朋友发了QQ消息\n18:57 我离开教室\n19:03 门禁记录显示我进入B-317\n\n但是——我清楚地记得，那天我根本没有在19:03进入过B楼。\n\n门禁记录不会错，但我的记忆也不会错。\n\n有什么东西被篡改了。\n\n${timeCorrected ? '我后来查了更多数据...时间差正好是 7分钟。有人修改了服务器的系统时间。' : '<span class="hidden">（此处内容被遮盖——需要正确的系统时间才能显示）</span>'}`; },
     illustration: `  时间线对比：
   ──────────────────────
   我的记忆    门禁记录
@@ -1324,7 +1339,7 @@ const diaryEntries = [
     date: '2018年6月1日',
     weather: '闷热',
     tag: '最后的准备',
-    content: `距离高考还有13天。启明星计划的最终名单快公布了。\n\n老师说我和另一个竞争者的表现几乎一样，他们需要做最后一轮评估。\n\n今天在QQ上和朋友聊了很久，她说觉得我最近压力很大。她让我有空一起去B楼后面的小花园走走。\n\n今晚查了启明星计划的官方网站——<span class="highlight-red">www.qx18-project.org</span>。\n\n${timeCorrected ? '有一个隐藏的授权入口，需要输入项目代号。我已经记住了：QX18。' : '<span class="hidden">网站上似乎有隐藏入口...好像需要什么代号...</span>'}`,
+    content: function(){ return `距离高考还有13天。启明星计划的最终名单快公布了。\n\n老师说我和另一个竞争者的表现几乎一样，他们需要做最后一轮评估。\n\n今天在QQ上和朋友聊了很久，她说觉得我最近压力很大。她让我有空一起去B楼后面的小花园走走。\n\n今晚查了启明星计划的官方网站——www.qx18-project.org。\n\n${timeCorrected ? '有一个隐藏的授权入口，需要输入项目代号。我已经记住了：QX18。' : '<span class="hidden">网站上似乎有隐藏入口...好像需要什么代号...</span>'}`; },
     illustration: `    │ 启明星计划 │
     │  授权入口   │
     │ [  ______ ] │
@@ -1335,7 +1350,7 @@ const diaryEntries = [
     date: '2018年6月14日',
     weather: '雷阵雨',
     tag: '最后一天',
-    content: `今天是高考前的最后一天。\n\n下午6点多，我收到了启明教育的一封邮件，说关于我的评估需要最后一次面谈，让我到B-317来。\n\n我有点不安，但还是答应了。\n\n18:41 我给朋友发了QQ："我去B楼一趟，很快回来。"\n\n${timeCorrected ? '然后我进入了B-317。那是我最后一次被监控拍到的时间。之后发生的事——我不记得了。\n\n或者说，我根本没有机会记下来。' : '<span class="hidden">后面的内容...被水浸湿了，看不清。</span>'}'`,
+    content: function(){ return `今天是高考前的最后一天。\n\n下午6点多，我收到了启明教育的一封邮件，说关于我的评估需要最后一次面谈，让我到B-317来。\n\n我有点不安，但还是答应了。\n\n18:41 我给朋友发了QQ："我去B楼一趟，很快回来。"\n\n${timeCorrected ? '然后我进入了B-317。那是我最后一次被监控拍到的时间。之后发生的事——我不记得了。\n\n或者说，我根本没有机会记下来。' : '<span class="hidden">后面的内容...被水浸湿了，看不清。</span>'}`; },
     illustration: `  ╔══════════════╗
   ║  B栋教学楼    ║
   ║  ┌──────┐    ║
@@ -1351,7 +1366,7 @@ const diaryEntries = [
     date: '???',
     weather: '???',
     tag: '最后一页',
-    content: `如果你还能看到这个——\n\n请重新数一遍。\n\n时间不对，数据不对，记忆不对。\n\n但有一件事是确定的：\n\n<span class="highlight-red">人会忘。东西不会。</span>\n\n去检查所有你能找到的东西。\nQQ记录、服务器日志、门禁数据、企业内部报告。\n\n真相藏在数据的缝隙里。\n\n——许妍`,
+    content: function(){ return `如果你还能看到这个——\n\n请重新数一遍。\n\n时间不对，数据不对，记忆不对。\n\n但有一件事是确定的：\n\n人会忘。东西不会。\n\n去检查所有你能找到的东西。\nQQ记录、服务器日志、门禁数据、企业内部报告。\n\n真相藏在数据的缝隙里。\n\n——许妍`; },
     illustration: `    *  *  *  *  *
     
       真相
@@ -1367,13 +1382,15 @@ function renderDiary(idx){
   if(idx >= diaryEntries.length) idx = diaryEntries.length - 1;
   currentDiaryIdx = idx;
   const entry = diaryEntries[idx];
+  // content 支持函数（动态求值）或字符串
+  const htmlContent = (typeof entry.content === 'function') ? entry.content() : entry.content;
   const container = document.getElementById('diary-container');
   container.innerHTML = `
     <div class="diary-entry">
       <div class="diary-date">${entry.date}</div>
       <div class="diary-weather">${entry.weather}</div>
       ${entry.tag ? `<div class="diary-entry-tag">${entry.tag}</div>` : ''}
-      <div class="diary-content">${entry.content}</div>
+      <div class="diary-content">${htmlContent}</div>
       ${entry.illustration ? `
         <div style="margin-top:24px;">
           <div class="diary-illustration-label">${entry.illustrationLabel || ''}</div>
@@ -1823,7 +1840,7 @@ function switchQQContact(idx){
   renderQQContacts();
 }
 
-// ================== 练习册翻页 (已废弃，保留兼容) ==================
+// ================== 日记翻页 (已废弃，保留兼容) ==================
 let nbPage = 1;
 function notebookTurn(d){
   nbPage = Math.max(1, Math.min(6, nbPage + d));
@@ -1987,8 +2004,8 @@ function renderNewTab(){
         </div>
         <div style="margin-top:30px;">
           <h4 style="color:#555; margin-bottom:16px; font-weight:normal;">📝 今日笔记</h4>
-          <div style="font-size:13px; color:#666; line-height:2; padding:14px; background:#fafafa; border-left:3px solid #e0a030;">
-            · 那本练习册上的时间戳，是2018年6月14日晚上的记录。<br>
+          <div style="font-size:13px; color:#666; line-height:2; padding:14px; background:#fafafa; border-left:3px solid #ccc;">
+            · 那本日记上的时间戳，是2018年6月14日晚上的记录。<br>
             · 学校官网的新闻缓存应该能找到关于B-317和启明星计划的线索。<br>
             · 进入内网需要正确的账号密码，用户名可能是许妍的名字拼音，密码要把日期和房间号拼起来。<br>
             · 不同系统的时钟可能存在偏差——七分钟？
@@ -2118,13 +2135,13 @@ function renderSchoolSite(path, root){
       <div style="color:#888; font-size:12px; margin-bottom:20px;">发布日期：2018年3月20日 · 来源：校办公室</div>
       <div style="line-height:2; font-size:14px; color:#333;">
         <p>&nbsp;&nbsp;&nbsp;&nbsp;3月20日上午，我校与启明教育科技有限公司校企合作签约仪式在行政楼会议室隆重举行。</p>
-        <p>&nbsp;&nbsp;&nbsp;&nbsp;据悉，双方将合作开展"智能教育新模式"研究，共建学生综合研究室（位于B楼 <b style="color:#a02c2c;">B-317</b> 室），探索学生学习行为、认知规律与个性化教学方案。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;据悉，双方将合作开展"智能教育新模式"研究，共建学生综合研究室（位于B楼 <b>B-317</b> 室），探索学生学习行为、认知规律与个性化教学方案。</p>
         <p>&nbsp;&nbsp;&nbsp;&nbsp;该研究计划代号"<b>启明星计划（QX-18）</b>"，将选取高三年级部分志愿者学生参与。</p>
         <p style="text-align:right; color:#666; margin-top:30px;">（文/图 校办公室）</p>
       </div>
       <div style="margin-top:30px; padding:14px; background:#f8f8f0; border:1px dashed #ccc; font-size:12px; color:#777;">
         <b>📝 编辑记录：</b>最后修改时间 2018-06-16 23:47。<br>
-        <span style="color:#a00;">⚠ 注：本报道于2018年6月16日进行过修改，修改原因："文字表述调整"</span>
+        ⚠ 注：本报道于2018年6月16日进行过修改，修改原因："文字表述调整"
       </div>`;
   } else if(mainPath === '/about'){
     main.innerHTML = `
@@ -2143,7 +2160,7 @@ function renderSchoolSite(path, root){
         <p><strong>校长：陈国栋</strong></p>
         <p style="text-indent:2em; font-size:13px; color:#555;">陈国栋同志出生于<strong>1968年3月22日</strong>，自2003年起任我校党委书记、校长，主持学校全面工作。</p>
         <h4 style="margin-top:24px; color:#1a3a60;">校长寄语</h4>
-        <div style="border-left:4px solid #a02c2c; padding:10px 16px; background:#fff8f0; color:#554030; font-size:13px; line-height:2;">
+        <div style="border-left:4px solid #999; padding:10px 16px; background:#f8f8f8; color:#555; font-size:13px; line-height:2;">
           "百年学府，薪火相传。诚朴勤勇是DCYZ人的底色。<br>愿每一位同学在这里找到属于自己的启明星。"
           <p style="text-align:right; margin-top:6px; color:#666;">—— <strong>陈国栋</strong> 2018年春</p>
         </div>
@@ -2159,11 +2176,11 @@ function renderSchoolSite(path, root){
           <tr><td style="border:1px solid #d0d8e0; padding:6px 10px;">陈国栋</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">校长 / 党委书记</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">物理</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">2003</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">T20030101</td></tr>
           <tr><td style="border:1px solid #d0d8e0; padding:6px 10px;">王秀英</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">高三(1)班班主任</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">语文</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">2005</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">T20050901</td></tr>
           <tr><td style="border:1px solid #d0d8e0; padding:6px 10px;">李建华</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">高三(2)班班主任</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">数学</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">2008</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">T20080901</td></tr>
-          <tr style="background:#fff8e0;"><td style="border:1px solid #d0d8e0; padding:6px 10px;"><strong>张志强</strong></td><td style="border:1px solid #d0d8e0; padding:6px 10px;">高三(2)班班主任助理</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">生物</td><td style="border:1px solid #d0d8e0; padding:6px 10px;"><strong>2010</strong></td><td style="border:1px solid #d0d8e0; padding:6px 10px;">T20100901</td></tr>
+          <tr><td style="border:1px solid #d0d8e0; padding:6px 10px;"><strong>张志强</strong></td><td style="border:1px solid #d0d8e0; padding:6px 10px;">高三(2)班班主任助理</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">生物</td><td style="border:1px solid #d0d8e0; padding:6px 10px;"><strong>2010</strong></td><td style="border:1px solid #d0d8e0; padding:6px 10px;">T20100901</td></tr>
           <tr><td style="border:1px solid #d0d8e0; padding:6px 10px;">赵敏</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">高三(3)班班主任</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">英语</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">2007</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">T20070901</td></tr>
           <tr><td style="border:1px solid #d0d8e0; padding:6px 10px;">孙伟</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">高三(4)班班主任</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">化学</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">2006</td><td style="border:1px solid #d0d8e0; padding:6px 10px;">T20060901</td></tr>
         </table>
-        <div style="margin-top:16px; padding:12px 16px; background:#f8fbff; border-left:4px solid #2d5a8a; font-size:12px; line-height:1.8;">
+        <div style="margin-top:16px; padding:12px 16px; background:#f8f8f8; border-left:4px solid #999; font-size:12px; line-height:1.8;">
           <strong>张志强 老师 简介：</strong><br>
           张志强，男，1985年生，<strong>2010年9月入职东川市第一中学</strong>（<strong>DCYZ</strong>），任高三年级生物教师及班主任助理。<br>
           工作认真负责，关心学生成长，所带班级生物均分连续三年年级前列。<br>
@@ -2189,7 +2206,7 @@ function renderSchoolSite(path, root){
 │                                                                     │
 │  [B-309][B-310][B-311][B-312][B-313][B-314][B-315][B-316][B-317]   │
 │  备课室  教师办公 会议室  机房1   机房2   资料室  休息室  杂物室    │
-│                                               <span style="background:#ffcc00; color:#884400;">[学生综合研究室]</span>│
+│                                               [学生综合研究室]│
 │  ↑ 楼梯B                                                    楼梯A ↑ │
 └─────────────────────────────────────────────────────────────────────┘
 </pre>
@@ -2217,7 +2234,7 @@ function renderSchoolSite(path, root){
 └─────────────────────────────────────────────────────────────────────┘
 </pre>
         </div>
-        <div class="info-box">💡 对比2017与2019版：<b style="color:#c03030;">B-317</b> 在2019版中不存在。原B-317位置被标注为"楼梯间A"。</div>
+        <div class="info-box">💡 对比2017与2019版：<b>B-317</b> 在2019版中不存在。原B-317位置被标注为"楼梯间A"。</div>
       `;
     } else if(params.get('b317') !== null){
       main.innerHTML = `
@@ -2325,7 +2342,7 @@ async function renderIntranetSite(path, root){
           </div>
           <div class="login-tip">
             "用户名是她的名字拼音，密码把日期和房间号拼起来试试？"<br>
-            （练习册上的日期 / B楼消失的房间号，中间用下划线连接）
+            （日记上的日期 / B楼消失的房间号，中间用下划线连接）
           </div>
         </div>
       </div>`;
@@ -2405,11 +2422,11 @@ async function intraPage(p, aEl){
                 <td style="font-family:Consolas;">${l.time.substr(11)}</td>
                 <td>${l.door}</td>
                 <td>${l.user}</td>
-                <td style="color:${l.status.includes('异常')?'#c03030':'#333'}">${l.status}</td>
+                <td>${l.status}</td>
               </tr>`).join('')}
           </tbody>
         </table>
-        <div class="info-box">💡 对比练习册上的 [18:41][18:57][19:03][19:11]<br>
+        <div class="info-box">💡 对比日记上的 [18:41][18:57][19:03][19:11]<br>
         门禁显示19:03许妍进入B-317，19:11"未知用户"又进入？19:18显示"数据复制完成"？<br>
         服务器时间显示数据复制也是19:03开始——许妍进入和复制开始的先后关系需要再想想。</div>`;
     }, 500);
@@ -2515,7 +2532,7 @@ async function searchStu(){
       <div style="margin-top:14px; padding:10px; background:#f0f0f0; font-family:Consolas; font-size:11px; color:#555;">
       [调试信息] hidden_field = ${r.hiddenData}</div>
       <div style="margin-top:10px; font-size:12px; color:#666;">
-        💡 Base64解码：<span id="decoded-val" style="color:#c03030; font-weight:bold; cursor:pointer; text-decoration:underline;" onclick="document.getElementById('decoded-val').textContent=atob('${r.hiddenData}')">[点击解码]</span>
+        💡 Base64解码：<span id="decoded-val" style="cursor:pointer; text-decoration:underline;" onclick="document.getElementById('decoded-val').textContent=atob('${r.hiddenData}')">[点击解码]</span>
       </div>`;
   } else {
     el.innerHTML = `<h4 style="margin:14px 0;">档案详情</h4>
@@ -2536,7 +2553,7 @@ async function loadFloor(y){
     <h4 style="margin:10px 0;">${r.building} · ${r.floor} · ${y}存档</h4>
     <table class="data-table">
       <tr><th style="width:160px;">房间总数</th><td>${r.rooms.length} 间</td></tr>
-      <tr class="odd"><th>最后一间</th><td><b style="color:${r.lastRoom==='B-317'?'#c03030':'#333'}">${r.lastRoom}</b> ${r.purpose? '（用途：' + r.purpose + '）': ''} ${r.note? '（' + r.note + '）': ''}</td></tr>
+      <tr class="odd"><th>最后一间</th><td><b>${r.lastRoom}</b> ${r.purpose? '（用途：' + r.purpose + '）': ''} ${r.note? '（' + r.note + '）': ''}</td></tr>
       <tr><th>房间列表</th><td style="font-family:Consolas;">${r.rooms.join(' · ')}</td></tr>
     </table>
     <div class="info-box" style="margin-top:14px;">${r.lastRoom==='B-317'?'2017年：B-317明确存在，用途学生综合研究室。':'2019年：B-316之后直接是楼梯，B-317从图纸上消失了。'}</div>`;
@@ -2546,7 +2563,7 @@ async function loadTime(src){
   document.getElementById('time-result').innerHTML = `
     <table class="data-table" style="margin-top:10px;">
       <tr><th style="width:180px;">数据来源</th><td>${({access:'门禁系统独立时钟（未同步NTP）',server:'企业服务器（NTP校准）',monitor:'学校监控录像',photo:'学生手机拍照EXIF'})[src]||src}</td></tr>
-      <tr class="odd"><th>数据复制启动瞬间其显示时间</th><td style="font-family:Consolas; color:#c03030; font-size:16px;">${r.displayTime.substr(11)}</td></tr>
+      <tr class="odd"><th>数据复制启动瞬间其显示时间</th><td style="font-family:Consolas;">${r.displayTime.substr(11)}</td></tr>
       <tr><th>备注</th><td>${r.note||'-'}</td></tr>
     </table>`;
 }
@@ -2667,7 +2684,7 @@ function qxTab(t){
           <li>基于认知科学的个性化教学路径规划</li>
           <li>青少年记忆发展规律与学习效率优化</li>
         </ul>
-        <div style="margin-top:30px; padding:16px; background:#f5f7ff; border-left:4px solid #4a90e2; font-size:13px;">
+        <div style="margin-top:30px; padding:16px; background:#f8f8f8; border-left:4px solid #999; font-size:13px;">
           💡 项目代号含义：<b>QX = 启明星</b>，<b>18 = 2018年度正式批次</b>。
         </div>
       </div>`;
@@ -2685,7 +2702,7 @@ function qxTab(t){
         </ol>
         <h4 style="color:#0a2a50; margin:20px 0 14px;">👥 实验对象</h4>
         <p>实验对象编号以 <b>SUB-06XX</b> 格式编码。</p>
-        <div style="margin-top:20px; padding:16px; background:#fff8f0; border-left:4px solid #e08030; font-size:13px;">
+        <div style="margin-top:20px; padding:16px; background:#f8f8f8; border-left:4px solid #999; font-size:13px;">
           ⚠ <b>注意</b>：研究显示，通过反复引导和"纠正"，受试者可能会怀疑甚至修改原始记忆。
         </div>
       </div>`;
@@ -2937,7 +2954,7 @@ function checkEndingAvailable(){
       alert('你还缺少关键线索：\n\n· ' + missing.join('\n· ') + '\n\n请先完成以上部分。');
       return;
     }
-    showConfirm('所有碎片都已拼齐。\n\n现在，你要去B楼吗？\n（许妍在练习册最后留下的话——"如果你想知道真相，就去B楼。今晚。"）', triggerEnding, '最后的选择');
+    showConfirm('所有碎片都已拼齐。\n\n现在，你要去B楼吗？\n（许妍在日记最后留下的话——"如果你想知道真相，就去B楼。今晚。"）', triggerEnding, '最后的选择');
   });
 }
 
@@ -2991,7 +3008,7 @@ function showFinal(){
     </div>
     我终于想起来了：2018年6月14日那天晚上，我其实没有回家。我去了B楼。
     我站在B-317门口，我看见许妍。她对我说："你不应该来的。"
-    然后她把那本数学练习册交给我，她说："如果以后你忘了，就从时间开始查。"
+    然后她把那本日记交给我，她说："如果以后你忘了，就从时间开始查。"
 
     我忘了。整整八年。
 
@@ -3113,7 +3130,7 @@ const MAIL_DATA = {
     title: '📧 企业邮箱 · 秦明辉（启明教育CEO）',
     folders: [
       { id:'inbox', name:'📥 收件箱', mails:[
-        { id:'m1', from:'QX18-A03（自动报告）', subject:'⚠ 被试QX18-A03 第7次实验 异常警告【未归档】', time:'06-14 18:56', unread:true, body:'QX18实验控制台 自动告警邮件：\n\n被试：QX18-A03（许妍，17岁，女）\n锚定日期：2018-06-14 18:41（系统日志显示为 18:48）\n\n实验参数：锚定偏移 7分钟 · 第7次 · 双向记忆模式\n\n异常等级：<b style="color:#c00;">S级</b>（不可逆）\n\n描述：被试在双向记忆切换中，出现了"锚定残留"迹象。理论上这意味着：\n1. 被试本人在现实世界中"无法被他人正确感知"（即从他人记忆中消失）；\n2. 同时在 <b>8年后的同月同日（2026-06-14左右）</b>，如果存在一个对被试记忆足够深刻的"锚定者"，便会在那天前后出现"被试信息逐渐重现"的现象（如日记里的隐藏内容自动浮现、系统记录异常出现等）；\n3. 如锚定者能通过数据手段重建时间线，可使"锚定者-被试"双向共振。\n\n—— 本邮件保留于实验数据中，不随任何删除操作消失。\n\n发件人：QX18实验控制台 自动告警系统'},
+        { id:'m1', from:'QX18-A03（自动报告）', subject:'⚠ 被试QX18-A03 第7次实验 异常警告【未归档】', time:'06-14 18:56', unread:true, body:'QX18实验控制台 自动告警邮件：\n\n被试：QX18-A03（许妍，17岁，女）\n锚定日期：2018-06-14 18:41（系统日志显示为 18:48）\n\n实验参数：锚定偏移 7分钟 · 第7次 · 双向记忆模式\n\n异常等级：<b>S级</b>（不可逆）\n\n描述：被试在双向记忆切换中，出现了"锚定残留"迹象。理论上这意味着：\n1. 被试本人在现实世界中"无法被他人正确感知"（即从他人记忆中消失）；\n2. 同时在 <b>8年后的同月同日（2026-06-14左右）</b>，如果存在一个对被试记忆足够深刻的"锚定者"，便会在那天前后出现"被试信息逐渐重现"的现象（如日记里的隐藏内容自动浮现、系统记录异常出现等）；\n3. 如锚定者能通过数据手段重建时间线，可使"锚定者-被试"双向共振。\n\n—— 本邮件保留于实验数据中，不随任何删除操作消失。\n\n发件人：QX18实验控制台 自动告警系统'},
         { id:'m2', from:'陈国栋（东川一中校长）', subject:'Re: 执行方案回复', time:'06-14 21:00', unread:false, body:'秦总：\n\n我收到你的方案了。今晚就照你说的做。\n你我账户密码多年不改（按你当年那套格式：姓名缩写+项目代号+出生年），你要是忘了就去看企业内部员工登录处的灰色提示文字。\n\n—— 陈 2018.06.14'},
         { id:'m3', from:'研发部-周博士', subject:'A03数据异常分析：偏移7分钟的可能影响', time:'06-14 21:12', unread:false, body:'秦总：\n\n7分钟偏移量在第7次实验后恰好达到"1单位"（7×7=49，取49的个位+十位=13；项目年份18-5=13，自洽）。\n\n这意味着：A03在8年后出现"锚定回溯"时，<b>所有系统记录会比真实时间晚7分钟</b>。只要锚定者能在控制面板中把日期校准到正确的2026年8月（实际锚定日6月14日+2个月缓冲），便可观察到差异。\n\n建议：让校长那边的删除流程务必"保留备份文件"——因为这些数据8年后会自动浮现。'}
       ]},
@@ -3255,10 +3272,10 @@ function renderSAContent(){
       <div class="sa-card">
         <table class="sa-table">
           <tr><th>项目</th><th>数值</th><th>对比上月</th></tr>
-          <tr><td>在校学生数</td><td>2098 <span style="color:#888;">(原2099，-1)</span></td><td style="color:#c00;">- 许妍</td></tr>
-          <tr><td>启明星(QX-18)项目人数</td><td>4 <span style="color:#888;">(原5，-1)</span></td><td style="color:#c00;">- QX18-A03</td></tr>
+          <tr><td>在校学生数</td><td>2098 <span style="color:#888;">(原2099，-1)</span></td><td>- 许妍</td></tr>
+          <tr><td>启明星(QX-18)项目人数</td><td>4 <span style="color:#888;">(原5，-1)</span></td><td>- QX18-A03</td></tr>
           <tr><td>教师人数</td><td>210</td><td>无变化</td></tr>
-          <tr><td>合作项目进度</td><td style="color:#c00;">QX-18 异常处理中</td><td>⚠</td></tr>
+          <tr><td>合作项目进度</td><td>QX-18 异常处理中</td><td>⚠</td></tr>
         </table>
       </div>
       <div class="sa-card warn">
@@ -3269,13 +3286,13 @@ function renderSAContent(){
     c.innerHTML = `
       <h3>👥 学籍管理 · 特殊操作记录（仅校长可见）</h3>
       <div class="sa-card danger">
-        <b style="color:#c00;">【特殊删除 · 2018/06/14 21:08 执行】</b><br>
+        <b>【特殊删除 · 2018/06/14 21:08 执行】</b><br>
         目标：高三(3)班 · 学号 <b>2018060308 · 许妍</b><br>
         触发人：校长办公室 admin（使用校长授权密钥执行）<br>
         范围：学籍、成绩、考勤、照片、宿舍、校园卡、QX18入选资格<br>
         原因：<b>QX18-A03 异常（S级，机密）</b><br>
         对外口径：<b>转学（回老家）</b><br>
-        <span style="color:#a00;">⚠ 操作日志不可彻底删除，仍可在"已归档学生"栏目及LMS系统中查到痕迹。</span>
+        ⚠ 操作日志不可彻底删除，仍可在"已归档学生"栏目及LMS系统中查到痕迹。
       </div>
       <div class="sa-card">
         仍保留的痕迹（无法通过校长端删除）：
@@ -3283,7 +3300,7 @@ function renderSAContent(){
           <li>学习管理系统 · 操作日志（张志强账户仍可见）</li>
           <li>学习管理系统 · 已归档学生（归档编号 DC-2018-M0614）</li>
           <li>门禁总控原始记录（物理日志不可修改）</li>
-          <li>服务器自动备份 <code style="background:#f0f0ff; padding:2px 6px;">dcyz_backup_20180610.sql</code>（存在机房）</li>
+          <li>服务器自动备份 <code>dcyz_backup_20180610.sql</code>（存在机房）</li>
           <li>张志强手里：三模卷宗原件（已写入备忘录）</li>
         </ul>
       </div>`;
@@ -3296,7 +3313,7 @@ function renderSAContent(){
         <b>校方负责人：</b>陈国栋（我本人）<br>
         <b>实验场地：</b>B楼 B-317 实验室<br>
         <b>合同条款关键段：</b>
-        <p style="margin:8px 0; padding:8px; background:#fff8e0; border:1px solid #e0c080;">
+        <p style="margin:8px 0; padding:8px; background:#f5f5f5; border:1px solid #ccc;">
           因实验性质特殊（记忆相关），如出现S级异常，校方须配合完成：① 学籍/记录抹除；② 对外统一口径管理；③ 校内设备日志的必要修正（时间偏移 ≤10 分钟）。
         </p>
       </div>
@@ -3313,7 +3330,7 @@ function renderSAContent(){
     c.innerHTML = `
       <h3>📜 校长指令记录</h3>
       <div class="sa-card">
-        <b style="color:#c00;">📌 【第 2018-06-14-01 号】紧急：许妍同学事件处理</b>
+        <b>📌 【第 2018-06-14-01 号】紧急：许妍同学事件处理</b>
         <p>全体教职工（尤其高三年级班主任助理）：</p>
         <p>① 对外口径——许妍同学已于2018年6月14日办理转学手续回原籍，不再返校；</p>
         <p>② 如遇原班级同学询问，一律回复"官方信息就是这样"，严禁讨论、严禁私下查看LMS系统归档痕迹；</p>
@@ -3818,7 +3835,7 @@ const imContacts_XUYAN_LOW = [
       { me: false, text: '第 05 次 2018/06/01 17:30 - 20:00 ｜ +7min 全量 ｜ ✅' },
       { me: false, text: '第 06 次 2018/06/08 17:30 - 20:00 ｜ +7min 全量复核 ｜ ✅' },
       { time: '2018-06-14 18:03', divider: true, text: '今日 18:03' },
-      { me: false, text: '<b style="color:#a02020">【临时加测】第 07 次</b>，6月14日 18:50 B-317。<br>出席要求：必须。<br>说明：<b>实验后发放全部剩余补贴 + 高考推荐加分承诺书（签字版）</b>。' },
+      { me: false, text: '<b>【临时加测】第 07 次</b>，6月14日 18:50 B-317。<br>出席要求：必须。<br>说明：<b>实验后发放全部剩余补贴 + 高考推荐加分承诺书（签字版）</b>。' },
     ]
   },
   {
@@ -3836,8 +3853,8 @@ const imContacts_XUYAN_LOW = [
       { me: true,  text: '秦老师...！这个舱门自己关上了！' },
       { me: true,  text: '里面有气体！我头好晕... 你要记得我啊...' },
       { time: '2018-06-14 19:03（系统显示时）', divider: true, text: '系统时间 19:03（真实 18:56）' },
-      { me: false, text: '<b style="color:#a02020">【投递失败】</b><br>联系人 "秦明辉" 已屏蔽此会话。<br><b style="color:#555">发送方身份验证失败：该用户不存在。</b>' },
-      { me: false, text: '<b style="color:#a02020">【投递失败】</b><br>消息无法送达：<b>许妍</b>（A03）在该系统中的身份记录已被注销。<br><br><span style="color:#888">—— 这三条消息，最终没有一个人能收到。</span>' },
+      { me: false, text: '<b>【投递失败】</b><br>联系人 "秦明辉" 已屏蔽此会话。<br><b>发送方身份验证失败：该用户不存在。</b>' },
+      { me: false, text: '<b>【投递失败】</b><br>消息无法送达：<b>许妍</b>（A03）在该系统中的身份记录已被注销。<br><br><span style="color:#888">—— 这三条消息，最终没有一个人能收到。</span>' },
     ]
   }
 ];
@@ -3931,7 +3948,7 @@ function renderThisPC(){
     contentHTML = `
       <div style="font-size:12px;color:#556;margin-bottom:8px">D:\\ 数据盘</div>
       <div class="exp-grid">
-        <div class="exp-file" onclick="showModal('教务处共享文件夹：需要教务处账号（如校长账号已自带权限）。<br>里面包含：<br>· 高三年级考试安排.doc<br>· 高考报名汇总.xls<br>· <b style="color:#a02020">启明星合作账目（校长可访问的.xls）.xls</b>', '📂 教务处共享')"><div class="fi">📁</div><div class="fn">教务处共享</div></div>
+        <div class="exp-file" onclick="showModal('教务处共享文件夹：需要教务处账号（如校长账号已自带权限）。<br>里面包含：<br>· 高三年级考试安排.doc<br>· 高考报名汇总.xls<br>· <b>启明星合作账目（校长可访问的.xls）.xls</b>', '📂 教务处共享')"><div class="fi">📁</div><div class="fn">教务处共享</div></div>
         <div class="exp-file" onclick="showModal('D:\\备份\\2018\\6月\\<br>内含门禁快照、考勤备份、LMS数据库。大小：4.2 GB', '🗄️ 学校备份')"><div class="fi">🗄️</div><div class="fn">学校备份（2018年6月）</div></div>
         <div class="exp-file" onclick="showModal('安装包文件夹，内含：<br>· QQ2012_安装包.exe<br>· 启明专线客户端 v2.3.msi<br>· Chrome-v48 离线安装包.exe', '💿 安装包')"><div class="fi">💿</div><div class="fn">安装包</div></div>
         <div class="exp-file" onclick="showModal('个人照片（当前用户桌面也有快捷入口）。<br>共 138 张，最后拍摄：2018/06/14 上午', '📷 个人照片')"><div class="fi">📷</div><div class="fn">个人照片</div></div>
@@ -3952,7 +3969,7 @@ function renderThisPC(){
       <div class="exp-grid">
         <div class="exp-file ${currentUser==='principal'||currentUser==='mentor'?'':'disabled'}"
              onclick="${(currentUser==='principal'||currentUser==='mentor')?"openWindow('qx18console-window')":"showModal('您的权限等级不足访问此文件夹。<br>所需等级：<b>B-0级以上（校长/CEO）</b><br>您的等级：<b>"+(u.name==='张志强'||u.name==='许妍'?'C级访客':'未授权')+"</b>', '⚠️ 拒绝访问')"}">
-          <div class="fi" style="color:#a02020">🔐</div><div class="fn" style="color:#a02020;font-weight:bold">【机密】QX18-三期档案</div>
+          <div class="fi">🔐</div><div class="fn">【机密】QX18-三期档案</div>
         </div>
         <div class="exp-file" onclick="showModal('Z:\\公共目录\\<br><br>· 启明星宣传册.pdf<br>· 合作办学协议（公开版）.pdf<br>· 2017年度科研成果白皮书.pdf<br>· CEO秦明辉致辞.mp4（18分钟）', '📂 公共目录')"><div class="fi">📂</div><div class="fn">公共目录</div></div>
         <div class="exp-file ${currentUser==='principal'||currentUser==='mentor'?'':'disabled'}"
@@ -4068,7 +4085,7 @@ function renderRecycleBin(){
       <div class="explorer-toolbar">
         <button class="exp-btn rb-undo-btn">↶ 撤销删除</button>
         <button class="exp-btn primary rb-restore-btn" ${items.length===0?'disabled':''}>↩ 还原此项目</button>
-        <button class="exp-btn rb-delete-btn" style="margin-left:12px;color:#a01020" ${items.length===0?'disabled':''}>✕ 彻底删除</button>
+        <button class="exp-btn rb-delete-btn" style="margin-left:12px;" ${items.length===0?'disabled':''}>✕ 彻底删除</button>
         <button class="exp-btn rb-empty-btn" ${items.length===0?'disabled':''}>🗑️ 清空回收站</button>
         <div style="flex:1"></div>
         <span style="font-size:11px;color:#667">当前用户：<b>${u.name}</b>（${u.role}）</span>

@@ -401,6 +401,6 @@ app.listen(PORT, () => {
   console.log('========================================');
   console.log('');
   console.log('提示：游戏开始于一个模拟的"旧电脑桌面"，');
-  console.log('      你需要从数学练习册开始，逐步访问各个网站...');
+  console.log('      你需要从日记开始，逐步访问各个网站...');
   console.log('');
 });
