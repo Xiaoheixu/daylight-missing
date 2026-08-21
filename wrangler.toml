@@ -1,0 +1,15 @@
+name = "daylight-missing"
+compatibility_date = "2024-09-01"
+
+# 静态资源目录（Pages 自动托管 public/）
+# Pages 项目默认会识别根目录下的 public/、dist/、build/ 等
+# 本项目静态资源在 public/，无需额外配置
+
+# 本地开发（可选）：
+#   npx wrangler pages dev public/ --kv GAME_STATE
+# 部署后 KV binding 通过 Dashboard 配置（绑定名必须叫 GAME_STATE）
+
+[[kv_namespaces]]
+binding = "GAME_STATE"
+id = "<在 Cloudflare Dashboard 创建 KV 后填入>"
+preview_id = "<本地预览用 KV id，可选>"
